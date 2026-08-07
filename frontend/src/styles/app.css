@@ -1,0 +1,143 @@
+.app-layout {
+  display: flex;
+  height: 100vh;
+}
+
+.note-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid #e2e2e6;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.note-sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.note-sidebar-header h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.note-sidebar-header button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d6;
+  background: #f5f5f7;
+  cursor: pointer;
+}
+
+.note-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.note-list-item {
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+}
+
+.note-list-item.active {
+  background: #eeeef7;
+}
+
+.note-list-item-title {
+  flex: 1;
+  text-align: left;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-list-item-delete {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #9a9aa2;
+  padding: 4px 10px;
+  font-size: 16px;
+}
+
+.note-list-item-delete:hover {
+  color: #d33;
+}
+
+.note-list-empty {
+  color: #9a9aa2;
+  font-size: 13px;
+  padding: 8px 10px;
+}
+
+.app-main {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.app-hint {
+  padding: 40px;
+  color: #9a9aa2;
+}
+
+.note-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.note-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 40px 0;
+}
+
+.note-title-input {
+  flex: 1;
+  font-size: 24px;
+  font-weight: 600;
+  border: none;
+  outline: none;
+  padding: 4px 0;
+}
+
+.save-status {
+  font-size: 13px;
+  color: #9a9aa2;
+  white-space: nowrap;
+}
+
+.export-menu {
+  display: flex;
+  gap: 8px;
+}
+
+.export-menu button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d6;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.export-menu button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

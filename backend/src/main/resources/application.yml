@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: notebloom-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5433/notebloom
+    username: notebloom
+    password: notebloom
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+notebloom:
+  cors:
+    allowed-origins: http://localhost:5173
