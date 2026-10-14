@@ -6,6 +6,7 @@ import { updateNote } from '../api/notesApi'
 import { toMarkdownContent } from '../content/legacyContent'
 import { handleMarkdownShortcut } from '../markdown/shortcuts'
 import { applyEdit, readSelection } from '../markdown/applyEdit'
+import { continueNumberedHeading } from '../markdown/markdownCommands'
 import { useStoredChoice } from '../ui/useStoredChoice'
 import { buildCategoryTree, flattenWithPaths } from '../notes/categoryTree'
 import { ExportMenu } from './ExportMenu'
@@ -79,6 +80,15 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
     const textarea = event.currentTarget
     if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey) {
       if (handleMarkdownShortcut(event.key, textarea, changeContent)) event.preventDefault()
+      return
+    }
+    // Skip while an IME is composing, otherwise confirming a Chinese candidate would insert a heading
+    if (event.key === 'Enter' && !event.shiftKey && !event.altKey && !event.nativeEvent.isComposing) {
+      const edit = continueNumberedHeading(readSelection(textarea))
+      if (edit) {
+        event.preventDefault()
+        applyEdit(textarea, edit, changeContent)
+      }
       return
     }
     // Tab 插入縮排而不是跳到下一個欄位

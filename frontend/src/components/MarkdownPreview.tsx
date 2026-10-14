@@ -22,7 +22,13 @@ export function MarkdownPreview({ markdown, themeId }: MarkdownPreviewProps) {
   useEffect(() => {
     const doc = frameRef.current?.contentDocument
     if (!ready || !doc) return
+    // Re-rendering resets every section to open; restore the ones the reader collapsed
+    const collapsed = Array.from(doc.querySelectorAll('details.nb-section:not([open]) > summary > [id]'), (heading) => heading.id)
     doc.body.innerHTML = buildBodyHtml(renderMarkdown(deferredMarkdown), false)
+    collapsed.forEach((id) => {
+      const section = doc.getElementById(id)?.closest('details')
+      if (section) section.open = false
+    })
   }, [deferredMarkdown, ready])
 
   useEffect(() => {

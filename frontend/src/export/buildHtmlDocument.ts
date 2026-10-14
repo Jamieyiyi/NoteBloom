@@ -17,6 +17,7 @@ export function buildHtmlDocument(
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="${FAVICON}" />
 <title>${escapeHtml(title)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -71,7 +72,11 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (char) => entities[char])
 }
 
-const THEME_TOGGLE = `<button class="nb-theme-toggle" type="button" title="切換明亮 / 暗黑模式" aria-label="切換明亮 / 暗黑模式">${bloomSvg()}</button>`
+// Same five-petal flower as the app favicon, inlined so the exported file stays self-contained
+const FAVICON =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='%23f08ba5'%3E%3Ccircle cx='12' cy='6.5' r='4.6'/%3E%3Ccircle cx='17.23' cy='10.3' r='4.6'/%3E%3Ccircle cx='15.23' cy='16.45' r='4.6'/%3E%3Ccircle cx='8.77' cy='16.45' r='4.6'/%3E%3Ccircle cx='6.77' cy='10.3' r='4.6'/%3E%3C/g%3E%3Cellipse cx='6.2' cy='9.3' rx='1.1' ry='0.7' fill='%23fff' opacity='0.55' transform='rotate(-35 6.2 9.3)'/%3E%3Ccircle cx='12' cy='12' r='3.1' fill='%23fff5f8'/%3E%3C/svg%3E"
+
+const THEME_TOGGLE =`<button class="nb-theme-toggle" type="button" title="切換明亮 / 暗黑模式" aria-label="切換明亮 / 暗黑模式">${bloomSvg()}</button>`
 
 const SCRIPT = `
 (function () {
@@ -115,10 +120,22 @@ const SCRIPT = `
     });
   });
 
+  // Expand every collapsed section that contains the target before jumping to it
+  function revealTarget(id) {
+    for (var node = document.getElementById(id); node; node = node.parentElement) {
+      if (node.tagName === 'DETAILS') node.open = true;
+    }
+  }
+  window.addEventListener('hashchange', function () {
+    revealTarget(decodeURIComponent(location.hash.slice(1)));
+  });
+
   // 目錄標示目前章節：最後一個已經捲過畫面上緣的標題
   var links = {};
   document.querySelectorAll('.toc-link').forEach(function (link) {
-    links[decodeURIComponent(link.getAttribute('href').slice(1))] = link;
+    var id = decodeURIComponent(link.getAttribute('href').slice(1));
+    links[id] = link;
+    link.addEventListener('click', function () { revealTarget(id); });
   });
   var headings = Array.prototype.filter.call(document.querySelectorAll('.nb-content h1[id], .nb-content h2[id], .nb-content h3[id]'), function (h) {
     return links[h.id];
@@ -130,6 +147,8 @@ const SCRIPT = `
     pending = false;
     var current = headings[0];
     for (var i = 0; i < headings.length; i++) {
+      // Headings inside a collapsed section have no layout box; skip them
+      if (!headings[i].getClientRects().length) continue;
       if (headings[i].getBoundingClientRect().top <= 120) current = headings[i];
       else break;
     }

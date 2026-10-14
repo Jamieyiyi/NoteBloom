@@ -17,6 +17,8 @@
   --app-accent-soft: rgba(232, 99, 139, 0.1);
   --app-hover: rgba(0, 0, 0, 0.04);
   --app-danger: #d64545;
+  --app-info: #2b5fd9;
+  --app-warn: #b7791f;
 
   --petal: #f08ba5;
   --petal-center: #fff5f8;
@@ -42,6 +44,8 @@
     --app-accent-soft: rgba(240, 139, 165, 0.15);
     --app-hover: rgba(255, 255, 255, 0.05);
     --app-danger: #ff7b8a;
+    --app-info: #82aaff;
+    --app-warn: #e5c07b;
 
     --petal: #f08ba5;
     --petal-center: #fff5f8;
@@ -67,6 +71,8 @@
   --app-accent-soft: rgba(240, 139, 165, 0.15);
   --app-hover: rgba(255, 255, 255, 0.05);
   --app-danger: #ff7b8a;
+  --app-info: #82aaff;
+  --app-warn: #e5c07b;
 
   --petal: #f08ba5;
   --petal-center: #fff5f8;

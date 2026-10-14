@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import {
+  insertCallout,
   insertCodeBlock,
   insertHorizontalRule,
   insertLink,
   insertTable,
   toggleLinePrefix,
   wrapInline,
+  type CalloutMarker,
   type LinePrefixKind,
   type Selection,
   type TextEdit,
@@ -21,7 +23,13 @@ const CODE_LANGUAGES = ['bash', 'java', 'javascript', 'typescript', 'json', 'sql
 const TABLE_MAX_ROWS = 6
 const TABLE_MAX_COLUMNS = 6
 
-type Popover = 'code' | 'table' | null
+const CALLOUTS: readonly { marker: CalloutMarker; label: string }[] = [
+  { marker: 'INFO', label: 'ⓘ 資訊' },
+  { marker: 'WARN', label: '⚠ 警告' },
+  { marker: 'ERROR', label: '⊗ 錯誤' },
+]
+
+type Popover = 'code' | 'table' | 'quote' | null
 
 export function MarkdownToolbar({ textareaRef, onChange }: MarkdownToolbarProps) {
   const [popover, setPopover] = useState<Popover>(null)
@@ -53,7 +61,30 @@ export function MarkdownToolbar({ textareaRef, onChange }: MarkdownToolbarProps)
         <ToolButton label="•" title="項目清單" onClick={line('bullet')} />
         <ToolButton label="1." title="編號清單" onClick={line('numbered')} />
         <ToolButton label="☐" title="待辦清單" onClick={line('task')} />
-        <ToolButton label="❝" title="引言" onClick={line('quote')} />
+        <PopoverButton
+          label="❝"
+          title="引言 / 提示框"
+          open={popover === 'quote'}
+          onToggle={() => setPopover(popover === 'quote' ? null : 'quote')}
+          onClose={() => setPopover(null)}
+        >
+          <div className="md-popover-title">引言樣式</div>
+          <div className="md-callout-menu">
+            <button type="button" onClick={line('quote')}>
+              ❝ 一般引言
+            </button>
+            {CALLOUTS.map(({ marker, label }) => (
+              <button
+                key={marker}
+                type="button"
+                className={`md-callout-${marker.toLowerCase()}`}
+                onClick={() => run((s) => insertCallout(s, marker))}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </PopoverButton>
       </ToolGroup>
       <ToolGroup>
         <PopoverButton

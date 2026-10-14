@@ -586,6 +586,41 @@ select {
   background: var(--app-accent-soft);
 }
 
+.md-callout-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 140px;
+}
+
+.md-callout-menu button {
+  padding: 6px 10px;
+  font-size: 13px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.md-callout-menu button:hover {
+  color: var(--app-accent);
+  border-color: var(--app-accent);
+  background: var(--app-accent-soft);
+}
+
+.md-callout-menu .md-callout-info {
+  color: var(--app-info);
+}
+
+.md-callout-menu .md-callout-warn {
+  color: var(--app-warn);
+}
+
+.md-callout-menu .md-callout-error {
+  color: var(--app-danger);
+}
+
 .md-table-grid {
   display: grid;
   gap: 3px;

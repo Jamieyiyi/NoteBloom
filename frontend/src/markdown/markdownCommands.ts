@@ -119,6 +119,48 @@ export function insertHorizontalRule(selection: Selection): TextEdit {
   return insertBlock(selection, '---', 3, 3)
 }
 
+export type CalloutMarker = 'INFO' | 'WARN' | 'ERROR'
+
+/** Callout block: quotes the selected lines, or selects a placeholder when nothing is selected. */
+export function insertCallout(selection: Selection, marker: CalloutMarker): TextEdit {
+  const selected = selection.value.slice(selection.start, selection.end).replace(/\n$/, '')
+  const body = selected || '內容'
+  const opening = `> [!${marker}]\n> `
+  const block = `${opening}${body.split('\n').join('\n> ')}`
+  return selected ? insertBlock(selection, block, 0, block.length) : insertBlock(selection, block, opening.length, block.length)
+}
+
+// "## 1. Title", "### 2.3 Title", "### 2.3. Title"; a bare number such as "## 2024 Review" is not treated as numbering
+const NUMBERED_HEADING = /^(\s*#{1,6}\s+)(\d+(?:\.\d+)+\.?|\d+\.)(\s+)(.*)$/
+
+/**
+ * Enter on a numbered heading starts the next heading with the following number.
+ * Enter on a heading that has only the number clears it instead, ending the sequence.
+ * Returns null when the cursor line is not a numbered heading.
+ */
+export function continueNumberedHeading({ value, start, end }: Selection): TextEdit | null {
+  if (start !== end) return null
+  const lineStart = value.lastIndexOf('\n', start - 1) + 1
+  const newline = value.indexOf('\n', start)
+  const lineEnd = newline === -1 ? value.length : newline
+  const match = NUMBERED_HEADING.exec(value.slice(lineStart, lineEnd))
+  if (!match) return null
+
+  const [, hashes, number, space, title] = match
+  if (!title.trim()) {
+    return { start: lineStart, end: lineEnd, text: '', selectionStart: lineStart, selectionEnd: lineStart }
+  }
+  // The cursor sits inside the "## 1." prefix: let Enter behave normally
+  if (start < lineStart + hashes.length + number.length + space.length) return null
+
+  const text = `\n${hashes}${incrementLastNumber(number)} `
+  return { start, end, text, selectionStart: start + text.length, selectionEnd: start + text.length }
+}
+
+function incrementLastNumber(number: string): string {
+  return number.replace(/(\d+)(\.?)$/, (_, last: string, dot: string) => `${Number(last) + 1}${dot}`)
+}
+
 /** 連結 / 圖片：有選取文字就當成顯示文字並選取網址，沒有就選取顯示文字。 */
 export function insertLink({ value, start, end }: Selection, image: boolean): TextEdit {
   const selected = value.slice(start, end)

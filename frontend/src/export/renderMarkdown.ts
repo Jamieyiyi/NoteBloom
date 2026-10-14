@@ -25,7 +25,7 @@ import 'prismjs/components/prism-nginx'
 import 'prismjs/components/prism-diff'
 import 'prismjs/components/prism-markdown'
 import { makeUniqueSlug, slugify } from './slugify'
-import { CHECK_ICON_PATH, COPY_ICON_PATH, svgIcon } from '../ui/icons'
+import { CALLOUT_ICON_PATHS, CHECK_ICON_PATH, COPY_ICON_PATH, svgIcon, type CalloutKind } from '../ui/icons'
 
 export interface TocEntry {
   id: string
@@ -70,6 +70,8 @@ export function renderMarkdown(markdown: string): RenderedMarkdown {
   const toc = injectHeadingIds(parsed)
   decorateCodeBlocks(parsed)
   wrapTables(parsed)
+  decorateCallouts(parsed)
+  wrapCollapsibleSections(parsed)
   return { html: parsed.body.innerHTML, toc }
 }
 
@@ -116,6 +118,79 @@ function wrapTables(parsed: Document): void {
     table.replaceWith(wrapper)
     wrapper.append(table)
   })
+}
+
+const CALLOUT_KINDS: Record<string, CalloutKind> = {
+  INFO: 'info',
+  NOTE: 'info',
+  WARN: 'warn',
+  WARNING: 'warn',
+  ERROR: 'error',
+  DANGER: 'error',
+  CAUTION: 'error',
+}
+
+const CALLOUT_LABELS: Record<CalloutKind, string> = { info: '資訊', warn: '警告', error: '錯誤' }
+
+const CALLOUT_MARKER = /^\s*\[!(\w+)\][ \t]*([^\n]*)\n?/
+
+/**
+ * Turns `> [!INFO]`, `> [!WARN]` and `> [!ERROR]` blockquotes into callouts.
+ * Text after the marker on the same line replaces the default title.
+ */
+function decorateCallouts(parsed: Document): void {
+  parsed.querySelectorAll('blockquote').forEach((quote) => {
+    const paragraph = quote.firstElementChild
+    const textNode = paragraph?.tagName === 'P' ? paragraph.firstChild : null
+    if (!paragraph || !textNode || textNode.nodeType !== Node.TEXT_NODE) return
+    const match = CALLOUT_MARKER.exec(textNode.textContent ?? '')
+    const kind = match ? CALLOUT_KINDS[match[1].toUpperCase()] : undefined
+    if (!match || !kind) return
+
+    textNode.textContent = (textNode.textContent ?? '').slice(match[0].length)
+    if (!paragraph.textContent?.trim() && !paragraph.querySelector('img')) paragraph.remove()
+
+    const title = parsed.createElement('p')
+    title.className = 'callout-title'
+    title.innerHTML = svgIcon(CALLOUT_ICON_PATHS[kind], 'callout-icon')
+    title.append(match[2].trim() || CALLOUT_LABELS[kind])
+    quote.classList.add('callout', `callout-${kind}`)
+    quote.prepend(title)
+  })
+}
+
+/** Wraps every H2 / H3 and the content below it in an open <details>, so sections collapse without scripts. */
+function wrapCollapsibleSections(parsed: Document): void {
+  const h2Sections = wrapSections(parsed, parsed.body, 2)
+  ;[parsed.body, ...h2Sections].forEach((container) => wrapSections(parsed, container, 3))
+}
+
+/** A section runs from an H{level} heading until the next heading of the same or a higher level. */
+function wrapSections(parsed: Document, container: HTMLElement, level: number): HTMLElement[] {
+  const sections: HTMLElement[] = []
+  let current: HTMLElement | null = null
+
+  Array.from(container.childNodes).forEach((node) => {
+    const headingLevel = node instanceof Element ? Number(/^H([1-6])$/.exec(node.tagName)?.[1] ?? 0) : 0
+    if (headingLevel && headingLevel <= level) {
+      current = null
+      if (headingLevel < level) return
+
+      const section = parsed.createElement('details')
+      section.className = `nb-section nb-section-h${level}`
+      section.open = true
+      const summary = parsed.createElement('summary')
+      container.insertBefore(section, node)
+      summary.append(node)
+      section.append(summary)
+      sections.push(section)
+      current = section
+      return
+    }
+    current?.append(node)
+  })
+
+  return sections
 }
 
 function requestedLanguage(className: string): string | null {
