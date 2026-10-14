@@ -36,7 +36,7 @@ class NoteServiceImplTest {
 
     @Test
     void createSavesNoteAndReturnsResponse() {
-        NoteRequest request = new NoteRequest("My Note", "[]");
+        NoteRequest request = new NoteRequest("My Note", "# Hello");
         when(noteRepository.save(any(NoteModel.class))).thenAnswer(invocation -> {
             NoteModel note = invocation.getArgument(0);
             note.setId(UUID.randomUUID());
@@ -48,7 +48,7 @@ class NoteServiceImplTest {
         NoteResponse response = noteService.create(request);
 
         assertThat(response.title()).isEqualTo("My Note");
-        assertThat(response.contentJson()).isEqualTo("[]");
+        assertThat(response.content()).isEqualTo("# Hello");
         assertThat(response.id()).isNotNull();
     }
 

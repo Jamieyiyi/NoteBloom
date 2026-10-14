@@ -3,6 +3,7 @@ import { createNote, deleteNote, getNote, listNotes } from './api/notesApi'
 import type { Note, NoteSummary } from './types/note'
 import { NoteSidebar } from './components/NoteSidebar'
 import { NoteEditor } from './components/NoteEditor'
+import { useAppTheme } from './ui/useAppTheme'
 import './styles/app.css'
 
 export default function App() {
@@ -10,6 +11,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedNote, setSelectedNote] = useState<Note | null>(null)
   const [loading, setLoading] = useState(true)
+  const [theme, toggleTheme] = useAppTheme()
 
   useEffect(() => {
     refreshList()
@@ -37,7 +39,7 @@ export default function App() {
   }
 
   async function handleCreate() {
-    const created = await createNote('Untitled', '[]')
+    const created = await createNote('Untitled', '')
     setNotes((prev) => [{ id: created.id, title: created.title, createdAt: created.createdAt, updatedAt: created.updatedAt }, ...prev])
     setSelectedId(created.id)
   }
@@ -59,9 +61,11 @@ export default function App() {
       <NoteSidebar
         notes={notes}
         selectedId={selectedId}
+        theme={theme}
         onSelect={setSelectedId}
         onCreate={handleCreate}
         onDelete={handleDelete}
+        onToggleTheme={toggleTheme}
       />
       <main className="app-main">
         {loading && <p className="app-hint">載入中…</p>}

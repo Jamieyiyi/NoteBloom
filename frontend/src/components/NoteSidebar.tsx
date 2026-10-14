@@ -1,19 +1,31 @@
 import type { NoteSummary } from '../types/note'
+import type { AppTheme } from '../ui/useAppTheme'
+import { MOON_ICON_PATH, SUN_ICON_PATH } from '../ui/icons'
+import { Icon } from './Icon'
 
 interface NoteSidebarProps {
   notes: NoteSummary[]
   selectedId: string | null
+  theme: AppTheme
   onSelect: (id: string) => void
   onCreate: () => void
   onDelete: (id: string) => void
+  onToggleTheme: () => void
 }
 
-export function NoteSidebar({ notes, selectedId, onSelect, onCreate, onDelete }: NoteSidebarProps) {
+export function NoteSidebar({ notes, selectedId, theme, onSelect, onCreate, onDelete, onToggleTheme }: NoteSidebarProps) {
+  const toggleLabel = theme === 'dark' ? '切換到明亮模式' : '切換到暗黑模式'
+
   return (
     <aside className="note-sidebar">
       <div className="note-sidebar-header">
-        <h1>NoteBloom</h1>
-        <button type="button" onClick={onCreate}>
+        <div className="note-sidebar-brand">
+          <h1>NoteBloom</h1>
+          <button type="button" className="theme-toggle" title={toggleLabel} aria-label={toggleLabel} onClick={onToggleTheme}>
+            <Icon path={theme === 'dark' ? SUN_ICON_PATH : MOON_ICON_PATH} />
+          </button>
+        </div>
+        <button type="button" className="new-note-button" onClick={onCreate}>
           + 新增筆記
         </button>
       </div>

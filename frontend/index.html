@@ -5,6 +5,13 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NoteBloom</title>
+    <script>
+      // 在畫面繪製前套用上次的明暗模式，避免載入時閃爍（key 與 src/ui/useAppTheme.ts 相同）
+      try {
+        var saved = localStorage.getItem('notebloom-app-theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

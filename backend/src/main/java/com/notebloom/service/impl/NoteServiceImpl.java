@@ -41,7 +41,7 @@ public class NoteServiceImpl implements NoteService {
     public NoteResponse create(NoteRequest request) {
         NoteModel note = new NoteModel();
         note.setTitle(request.title());
-        note.setContentJson(request.contentJson());
+        note.setContent(request.content());
         return NoteResponse.from(noteRepository.save(note));
     }
 
@@ -49,7 +49,7 @@ public class NoteServiceImpl implements NoteService {
     public NoteResponse update(UUID id, NoteRequest request) {
         NoteModel note = findOrThrow(id);
         note.setTitle(request.title());
-        note.setContentJson(request.contentJson());
+        note.setContent(request.content());
         return NoteResponse.from(noteRepository.save(note));
     }
 

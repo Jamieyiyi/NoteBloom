@@ -1,0 +1,9 @@
+:80 {
+	handle /api/* {
+		reverse_proxy localhost:8080
+	}
+	handle {
+		root * C:/GitDownload/Jamie/NoteBloom/frontend/dist
+		file_server
+	}
+}

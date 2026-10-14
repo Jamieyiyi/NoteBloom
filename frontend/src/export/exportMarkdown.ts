@@ -1,11 +1,6 @@
 import { downloadFile } from './downloadFile'
 
-export interface MarkdownExportableEditor {
-  blocksToMarkdownLossy(): string
-}
-
-export function exportMarkdown(editor: MarkdownExportableEditor, title: string): void {
-  const markdown = editor.blocksToMarkdownLossy()
+export function exportMarkdown(markdown: string, title: string): void {
   downloadFile(`${safeFileName(title)}.md`, markdown, 'text/markdown')
 }
 

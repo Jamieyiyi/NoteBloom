@@ -6,5 +6,5 @@ export interface NoteSummary {
 }
 
 export interface Note extends NoteSummary {
-  contentJson: string
+  content: string
 }

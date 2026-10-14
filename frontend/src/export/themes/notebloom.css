@@ -1,0 +1,605 @@
+/*
+ * NoteBloom 匯出樣式
+ * 配色沿用原本的 DarkStyle.css（紫 + 金）與 LightStyle.css（藍 + 橘），
+ * 版面統一由下方共用規則處理；切換主題只是改 <html data-theme="dark|light">。
+ */
+
+/* ---------- Dark（DarkStyle.css 配色） ---------- */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121212;
+  --surface: #1a1a1d;
+  --surface-2: #222027;
+  --border: #2e2736;
+  --border-strong: #4a3f57;
+  --text: #f1e6fe;
+  --text-soft: #d9cfe6;
+  --muted: #a397b3;
+  --accent: #bb86fc;
+  --accent-soft: rgba(187, 134, 252, 0.12);
+  --link: #ff80ab;
+  --link-hover: #bb86fc;
+  --strong: #ffd700;
+  --mark: rgba(255, 215, 0, 0.28);
+  --success: #86fcbb;
+  --inline-code-bg: #2a2433;
+  --inline-code-border: #3a3145;
+  --inline-code-text: #d7b4ff;
+  --code-bg: #1e1e1e;
+  --code-header-bg: #232027;
+  --code-border: #33303a;
+  --code-text: #f1e6fe;
+  --zebra: rgba(255, 255, 255, 0.02);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+  --tok-comment: #6a9955;
+  --tok-punctuation: #d4d4d4;
+  --tok-tag: #dcdcaa;
+  --tok-property: #9cdcfe;
+  --tok-number: #b5cea8;
+  --tok-string: #ce9178;
+  --tok-operator: #569cd6;
+  --tok-keyword: #c586c0;
+  --tok-function: #dcdcaa;
+  --tok-variable: #9cdcfe;
+
+  --api-get: #86fcbb;
+  --api-post: #ffb74d;
+  --api-put: #d191ff;
+  --api-patch: #64b5f6;
+  --api-delete: #ff8080;
+}
+
+/* ---------- Light（LightStyle.css 配色） ---------- */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f8f9fa;
+  --surface: #ffffff;
+  --surface-2: #eef1f5;
+  --border: #dee2e6;
+  --border-strong: #adb8cc;
+  --text: #212529;
+  --text-soft: #3d434a;
+  --muted: #6c757d;
+  --accent: #0056b3;
+  --accent-soft: rgba(0, 86, 179, 0.08);
+  --link: #007bff;
+  --link-hover: #ff4081;
+  --strong: #e8590c;
+  --mark: #fff176;
+  --success: #2b9a48;
+  --inline-code-bg: #e7f1fb;
+  --inline-code-border: #cfe2f6;
+  --inline-code-text: #0056b3;
+  --code-bg: #f6f8fa;
+  --code-header-bg: #eef1f5;
+  --code-border: #d6dde6;
+  --code-text: #212529;
+  --zebra: rgba(0, 0, 0, 0.015);
+  --shadow: 0 6px 18px rgba(33, 37, 41, 0.06);
+
+  --tok-comment: #6f9a76;
+  --tok-punctuation: #8a8f96;
+  --tok-tag: #e07a1f;
+  --tok-property: #2c6aa8;
+  --tok-number: #2f9e57;
+  --tok-string: #d9534f;
+  --tok-operator: #3a8fc9;
+  --tok-keyword: #8a5cc2;
+  --tok-function: #b8860b;
+  --tok-variable: #139e86;
+
+  --api-get: #008000;
+  --api-post: #d2691e;
+  --api-put: #6a1b9a;
+  --api-patch: #0056b3;
+  --api-delete: #b22222;
+}
+
+/* ---------- 基礎 ---------- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Roboto', 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nb-page {
+  --mono: 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 820px);
+  gap: 56px;
+  justify-content: center;
+  padding: 64px 32px 112px;
+}
+
+.nb-page.no-toc {
+  grid-template-columns: minmax(0, 820px);
+}
+
+/* ---------- 目錄 ---------- */
+.toc {
+  position: sticky;
+  top: 32px;
+  align-self: start;
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  padding: 18px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.toc-title {
+  margin: 0 10px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc-link {
+  display: block;
+  padding: 5px 10px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.toc-link:hover {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
+.toc-link.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+.toc-level-1 > .toc-link {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.toc-level-1 > .toc-link.active {
+  color: var(--accent);
+}
+
+.toc-level-2 > .toc-link {
+  padding-left: 22px;
+}
+
+.toc-level-3 > .toc-link {
+  padding-left: 34px;
+  font-size: 13px;
+}
+
+/* ---------- 內文 ---------- */
+.nb-content {
+  min-width: 0;
+}
+
+.nb-content > :first-child {
+  margin-top: 0;
+}
+
+.nb-content h1,
+.nb-content h2,
+.nb-content h3,
+.nb-content h4 {
+  color: var(--text);
+  line-height: 1.3;
+  scroll-margin-top: 24px;
+}
+
+.nb-content h1 {
+  margin: 1.6em 0 0.8em;
+  padding-bottom: 0.45em;
+  font-size: 2.3em;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(90deg, var(--accent), transparent 85%) 1;
+}
+
+.nb-content h2 {
+  margin: 2.2em 0 0.8em;
+  padding-bottom: 0.4em;
+  font-size: 1.6em;
+  font-weight: 800;
+  border-bottom: 1px solid var(--border);
+}
+
+.nb-content h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 1.8em 0 0.6em;
+  font-size: 1.25em;
+  font-weight: 700;
+}
+
+.nb-content h3::before {
+  content: '';
+  flex-shrink: 0;
+  width: 4px;
+  height: 1em;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.nb-content h4 {
+  margin: 1.5em 0 0.5em;
+  font-size: 1.05em;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.nb-content p {
+  margin: 0 0 1.1em;
+}
+
+.nb-content a {
+  color: var(--link);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--link) 40%, transparent);
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.nb-content a:hover {
+  color: var(--link-hover);
+  text-decoration-color: currentColor;
+}
+
+.nb-content strong {
+  color: var(--strong);
+  font-weight: 700;
+}
+
+.nb-content mark {
+  padding: 0 2px;
+  color: inherit;
+  background: linear-gradient(transparent 55%, var(--mark) 55%);
+}
+
+.nb-content ul,
+.nb-content ol {
+  margin: 0 0 1.1em;
+  padding-left: 1.6em;
+}
+
+.nb-content li {
+  margin: 0.3em 0;
+}
+
+.nb-content li > ul,
+.nb-content li > ol {
+  margin: 0.3em 0 0.5em;
+}
+
+.nb-content li::marker {
+  color: var(--accent);
+}
+
+.nb-content ol > li::marker {
+  font-weight: 700;
+}
+
+.nb-content input[type='checkbox'] {
+  accent-color: var(--accent);
+  margin-right: 6px;
+}
+
+.nb-content blockquote {
+  margin: 1.4em 0;
+  padding: 14px 20px;
+  color: var(--text-soft);
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+}
+
+.nb-content blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.nb-content hr {
+  height: 1px;
+  margin: 2.6em 0;
+  border: 0;
+  background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+}
+
+.nb-content img {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+/* ---------- 行內程式碼 ---------- */
+.nb-content :not(pre) > code {
+  padding: 0.15em 0.45em;
+  font-family: var(--mono);
+  font-size: 0.86em;
+  color: var(--inline-code-text);
+  background: var(--inline-code-bg);
+  border: 1px solid var(--inline-code-border);
+  border-radius: 6px;
+}
+
+/* ---------- 程式碼區塊 ---------- */
+.code-block {
+  margin: 1.2em 0 1.6em;
+  overflow: hidden;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px 6px 16px;
+  background: var(--code-header-bg);
+  border-bottom: 1px solid var(--code-border);
+}
+
+.code-lang {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.copy-btn:hover {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
+.copy-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.copy-btn .icon-check,
+.copy-btn.copied .icon-copy {
+  display: none;
+}
+
+.copy-btn.copied {
+  color: var(--success);
+}
+
+.copy-btn.copied .icon-check {
+  display: inline;
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+
+.code-block pre code {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+/* Prism 語法高亮 */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: var(--tok-comment);
+  font-style: italic;
+}
+.token.punctuation {
+  color: var(--tok-punctuation);
+}
+.token.tag,
+.token.constant,
+.token.symbol {
+  color: var(--tok-tag);
+}
+.token.property {
+  color: var(--tok-property);
+}
+.token.boolean,
+.token.number {
+  color: var(--tok-number);
+}
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: var(--tok-string);
+}
+.token.operator,
+.token.entity,
+.token.url {
+  color: var(--tok-operator);
+}
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: var(--tok-keyword);
+}
+.token.function,
+.token.class-name {
+  color: var(--tok-function);
+}
+.token.regex,
+.token.important,
+.token.variable {
+  color: var(--tok-variable);
+}
+
+/* ---------- 表格 ---------- */
+.table-wrap {
+  margin: 1.4em 0;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.nb-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.nb-content th {
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.nb-content td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.nb-content tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.nb-content tbody tr:nth-child(even) {
+  background: var(--zebra);
+}
+
+.nb-content tbody tr:hover {
+  background: var(--accent-soft);
+}
+
+/* ---------- API method 標籤（沿用原本的 class 名稱） ---------- */
+.api-method-get { color: var(--api-get); font-weight: bold; }
+.api-method-post { color: var(--api-post); font-weight: bold; }
+.api-method-put { color: var(--api-put); font-weight: bold; }
+.api-method-patch { color: var(--api-patch); font-weight: bold; }
+.api-method-delete { color: var(--api-delete); font-weight: bold; }
+
+/* ---------- 太陽 / 月亮切換 ---------- */
+.nb-theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.nb-theme-toggle:hover {
+  transform: rotate(20deg);
+}
+
+.nb-theme-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 暗色時顯示太陽（點了變亮），亮色時顯示月亮 */
+.nb-theme-toggle .icon-moon,
+:root[data-theme='light'] .nb-theme-toggle .icon-sun {
+  display: none;
+}
+
+:root[data-theme='light'] .nb-theme-toggle .icon-moon {
+  display: block;
+}
+
+/* ---------- 響應式 / 列印 ---------- */
+@media (max-width: 1100px) {
+  .nb-page {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    padding: 72px 20px 80px;
+  }
+
+  .toc {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media print {
+  .nb-theme-toggle,
+  .copy-btn {
+    display: none;
+  }
+
+  .nb-page {
+    display: block;
+    padding: 0;
+  }
+
+  .toc {
+    display: none;
+  }
+}

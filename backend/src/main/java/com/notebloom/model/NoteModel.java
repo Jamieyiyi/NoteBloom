@@ -27,10 +27,10 @@ public class NoteModel {
     private String title;
 
     /**
-     * Serialized JSON array of BlockNote blocks — the editor's source of truth.
+     * Markdown source of the note — the editor's source of truth.
      */
-    @Column(name = "content_json", nullable = false, columnDefinition = "TEXT")
-    private String contentJson;
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    private String content;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

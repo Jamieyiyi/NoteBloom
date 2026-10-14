@@ -3,34 +3,76 @@
   height: 100vh;
 }
 
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------- 側欄 ---------- */
 .note-sidebar {
   width: 260px;
   flex-shrink: 0;
-  border-right: 1px solid #e2e2e6;
-  padding: 16px;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+  background: var(--app-sidebar-bg);
+  border-right: 1px solid var(--app-border);
 }
 
 .note-sidebar-header {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
-.note-sidebar-header h1 {
-  font-size: 18px;
-  margin: 0;
+.note-sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.note-sidebar-header button {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #d0d0d6;
-  background: #f5f5f7;
+.note-sidebar-brand h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: var(--app-muted);
+  background: transparent;
+  border: 1px solid var(--app-border);
+  border-radius: 50%;
   cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease, transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--app-accent);
+  background: var(--app-accent-soft);
+  transform: rotate(20deg);
+}
+
+.new-note-button {
+  padding: 9px 12px;
+  font-weight: 600;
+  color: var(--app-accent-text);
+  background: var(--app-accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.new-note-button:hover {
+  filter: brightness(1.08);
 }
 
 .note-list {
@@ -45,53 +87,71 @@
 .note-list-item {
   display: flex;
   align-items: center;
-  border-radius: 6px;
+  border-radius: 8px;
+}
+
+.note-list-item:hover {
+  background: var(--app-hover);
 }
 
 .note-list-item.active {
-  background: #eeeef7;
+  background: var(--app-accent-soft);
+}
+
+.note-list-item.active .note-list-item-title {
+  color: var(--app-accent);
+  font-weight: 600;
 }
 
 .note-list-item-title {
   flex: 1;
-  text-align: left;
   padding: 8px 10px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  border-radius: 6px;
   overflow: hidden;
+  text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .note-list-item-delete {
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: #9a9aa2;
   padding: 4px 10px;
   font-size: 16px;
+  color: var(--app-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.note-list-item:hover .note-list-item-delete,
+.note-list-item.active .note-list-item-delete {
+  opacity: 1;
 }
 
 .note-list-item-delete:hover {
-  color: #d33;
+  color: var(--app-danger);
 }
 
 .note-list-empty {
-  color: #9a9aa2;
-  font-size: 13px;
   padding: 8px 10px;
+  font-size: 13px;
+  color: var(--app-muted);
 }
 
+/* ---------- 主畫面 ---------- */
 .app-main {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
 }
 
 .app-hint {
   padding: 40px;
-  color: #9a9aa2;
+  color: var(--app-muted);
 }
 
 .note-editor {
@@ -104,40 +164,106 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px 40px 0;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--app-border);
 }
 
 .note-title-input {
   flex: 1;
+  min-width: 0;
+  padding: 4px 0;
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--app-text);
+  background: transparent;
   border: none;
   outline: none;
-  padding: 4px 0;
 }
 
 .save-status {
   font-size: 13px;
-  color: #9a9aa2;
+  color: var(--app-muted);
   white-space: nowrap;
 }
 
+.note-editor-panes {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.markdown-input {
+  flex: 1;
+  min-width: 0;
+  padding: 20px 24px;
+  font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  tab-size: 4;
+  color: var(--app-text);
+  background: var(--app-editor-bg);
+  border: none;
+  outline: none;
+  resize: none;
+}
+
+.markdown-input::placeholder {
+  color: var(--app-muted);
+}
+
+.markdown-preview {
+  flex: 1;
+  min-width: 0;
+  background: var(--app-bg);
+  border: none;
+  border-left: 1px solid var(--app-border);
+}
+
+/* ---------- 匯出 ---------- */
 .export-menu {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
 .export-menu button {
   padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #d0d0d6;
-  background: #fff;
-  cursor: pointer;
   font-size: 13px;
   white-space: nowrap;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border-strong);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-.export-menu button:disabled {
-  opacity: 0.6;
-  cursor: default;
+.export-menu button:hover {
+  color: var(--app-accent);
+  border-color: var(--app-accent);
+}
+
+.export-menu .theme-switch {
+  display: flex;
+  padding: 2px;
+  background: var(--app-hover);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+}
+
+.export-menu .theme-switch button {
+  padding: 4px 10px;
+  color: var(--app-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+}
+
+.export-menu .theme-switch button.active {
+  color: var(--app-accent-text);
+  background: var(--app-accent);
+}
+
+.export-menu-label {
+  font-size: 12px;
+  color: var(--app-muted);
 }

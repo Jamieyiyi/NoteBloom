@@ -34,3 +34,10 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// 把前端 build 結果（frontend/dist）一起包進 JAR，由 Spring Boot 內嵌 Tomcat 當靜態檔提供
+tasks.named('bootJar') {
+    from('../frontend/dist') {
+        into 'BOOT-INF/classes/static'
+    }
+}

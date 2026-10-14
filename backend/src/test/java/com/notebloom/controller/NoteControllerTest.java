@@ -44,8 +44,8 @@ class NoteControllerTest {
 
     @Test
     void createReturns201WithBody() throws Exception {
-        NoteRequest request = new NoteRequest("Hello", "[]");
-        NoteResponse response = new NoteResponse(UUID.randomUUID(), "Hello", "[]", Instant.now(), Instant.now());
+        NoteRequest request = new NoteRequest("Hello", "# Hello");
+        NoteResponse response = new NoteResponse(UUID.randomUUID(), "Hello", "# Hello", Instant.now(), Instant.now());
         when(noteService.create(any(NoteRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/notes")
@@ -56,7 +56,7 @@ class NoteControllerTest {
 
     @Test
     void createReturns400WhenTitleBlank() throws Exception {
-        NoteRequest request = new NoteRequest(" ", "[]");
+        NoteRequest request = new NoteRequest(" ", "# Hello");
 
         mockMvc.perform(post("/api/notes")
                         .contentType(MediaType.APPLICATION_JSON)

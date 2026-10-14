@@ -2,7 +2,7 @@ spring:
   application:
     name: notebloom-backend
   datasource:
-    url: jdbc:postgresql://localhost:5433/notebloom
+    url: jdbc:postgresql://localhost:5433/notebloom?currentSchema=notebloom
     username: notebloom
     password: notebloom
   jpa:

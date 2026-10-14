@@ -8,7 +8,7 @@ import java.util.UUID;
 public record NoteResponse(
         UUID id,
         String title,
-        String contentJson,
+        String content,
         Instant createdAt,
         Instant updatedAt
 ) {
@@ -16,7 +16,7 @@ public record NoteResponse(
         return new NoteResponse(
                 note.getId(),
                 note.getTitle(),
-                note.getContentJson(),
+                note.getContent(),
                 note.getCreatedAt(),
                 note.getUpdatedAt()
         );

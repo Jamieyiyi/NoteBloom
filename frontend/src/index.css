@@ -1,3 +1,57 @@
+/* 編輯介面配色：明亮沿用 LightStyle 的藍，暗黑沿用 DarkStyle 的紫 */
+:root {
+  color-scheme: light;
+  --app-bg: #ffffff;
+  --app-sidebar-bg: #f8f9fa;
+  --app-surface: #ffffff;
+  --app-editor-bg: #fbfbfc;
+  --app-border: #e2e5e9;
+  --app-border-strong: #cfd4da;
+  --app-text: #1f2328;
+  --app-muted: #6c757d;
+  --app-accent: #0056b3;
+  --app-accent-text: #ffffff;
+  --app-accent-soft: rgba(0, 86, 179, 0.09);
+  --app-hover: rgba(0, 0, 0, 0.04);
+  --app-danger: #d33;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --app-bg: #121212;
+    --app-sidebar-bg: #17151b;
+    --app-surface: #1e1b22;
+    --app-editor-bg: #141316;
+    --app-border: #2e2736;
+    --app-border-strong: #43394f;
+    --app-text: #f1e6fe;
+    --app-muted: #9d93a8;
+    --app-accent: #bb86fc;
+    --app-accent-text: #1a1220;
+    --app-accent-soft: rgba(187, 134, 252, 0.14);
+    --app-hover: rgba(255, 255, 255, 0.05);
+    --app-danger: #ff8080;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --app-bg: #121212;
+  --app-sidebar-bg: #17151b;
+  --app-surface: #1e1b22;
+  --app-editor-bg: #141316;
+  --app-border: #2e2736;
+  --app-border-strong: #43394f;
+  --app-text: #f1e6fe;
+  --app-muted: #9d93a8;
+  --app-accent: #bb86fc;
+  --app-accent-text: #1a1220;
+  --app-accent-soft: rgba(187, 134, 252, 0.14);
+  --app-hover: rgba(255, 255, 255, 0.05);
+  --app-danger: #ff8080;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -5,7 +59,9 @@
 body {
   margin: 0;
   font-family: -apple-system, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-  color-scheme: light;
+  color: var(--app-text);
+  background: var(--app-bg);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 #root {

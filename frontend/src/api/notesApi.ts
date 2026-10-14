@@ -21,19 +21,19 @@ export function getNote(id: string): Promise<Note> {
   return fetch(`${BASE_URL}/${id}`).then((res) => handle(res))
 }
 
-export function createNote(title: string, contentJson: string): Promise<Note> {
+export function createNote(title: string, content: string): Promise<Note> {
   return fetch(BASE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, contentJson }),
+    body: JSON.stringify({ title, content }),
   }).then((res) => handle(res))
 }
 
-export function updateNote(id: string, title: string, contentJson: string): Promise<Note> {
+export function updateNote(id: string, title: string, content: string): Promise<Note> {
   return fetch(`${BASE_URL}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, contentJson }),
+    body: JSON.stringify({ title, content }),
   }).then((res) => handle(res))
 }
 
