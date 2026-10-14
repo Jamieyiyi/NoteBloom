@@ -3,10 +3,14 @@ package com.notebloom.service.impl;
 import com.notebloom.dto.NoteRequest;
 import com.notebloom.dto.NoteResponse;
 import com.notebloom.dto.NoteSummaryResponse;
+import com.notebloom.exception.CategoryNotFoundException;
 import com.notebloom.exception.NoteNotFoundException;
+import com.notebloom.model.CategoryModel;
 import com.notebloom.model.NoteModel;
+import com.notebloom.repository.CategoryRepository;
 import com.notebloom.repository.NoteRepository;
 import com.notebloom.service.NoteService;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,15 +22,17 @@ import java.util.UUID;
 public class NoteServiceImpl implements NoteService {
 
     private final NoteRepository noteRepository;
+    private final CategoryRepository categoryRepository;
 
-    public NoteServiceImpl(NoteRepository noteRepository) {
+    public NoteServiceImpl(NoteRepository noteRepository, CategoryRepository categoryRepository) {
         this.noteRepository = noteRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<NoteSummaryResponse> list() {
-        return noteRepository.findAll().stream()
+        return noteRepository.findAll(Sort.by(Sort.Direction.DESC, "updatedAt")).stream()
                 .map(NoteSummaryResponse::from)
                 .toList();
     }
@@ -40,16 +46,14 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public NoteResponse create(NoteRequest request) {
         NoteModel note = new NoteModel();
-        note.setTitle(request.title());
-        note.setContent(request.content());
+        applyRequest(note, request);
         return NoteResponse.from(noteRepository.save(note));
     }
 
     @Override
     public NoteResponse update(UUID id, NoteRequest request) {
         NoteModel note = findOrThrow(id);
-        note.setTitle(request.title());
-        note.setContent(request.content());
+        applyRequest(note, request);
         return NoteResponse.from(noteRepository.save(note));
     }
 
@@ -59,6 +63,20 @@ public class NoteServiceImpl implements NoteService {
             throw new NoteNotFoundException(id);
         }
         noteRepository.deleteById(id);
+    }
+
+    private void applyRequest(NoteModel note, NoteRequest request) {
+        note.setTitle(request.title());
+        note.setContent(request.content());
+        note.setCategory(resolveCategory(request.categoryId()));
+    }
+
+    private CategoryModel resolveCategory(UUID categoryId) {
+        if (categoryId == null) {
+            return null;
+        }
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
     }
 
     private NoteModel findOrThrow(UUID id) {

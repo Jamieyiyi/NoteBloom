@@ -1,10 +1,10 @@
 import type { RenderedMarkdown, TocEntry } from './renderMarkdown'
 import { EXPORT_STYLE, type ExportThemeId } from './themes'
-import { MOON_ICON_PATH, SUN_ICON_PATH, svgIcon } from '../ui/icons'
+import { bloomSvg } from '../ui/bloom'
 
 /**
  * 完整的獨立 HTML 文件：匯出下載和編輯器右側預覽共用同一份，預覽才會和匯出結果一致。
- * `interactive` 只有匯出時才開：加上太陽/月亮切換鈕和 script（預覽的 iframe 不執行 script）。
+ * `interactive` 只有匯出時才開：加上目錄、明暗切換的小花和 script（預覽不顯示目錄，iframe 也不執行 script）。
  */
 export function buildHtmlDocument(
   title: string,
@@ -27,15 +27,16 @@ ${EXPORT_STYLE}
 </head>
 <body>
 ${interactive ? THEME_TOGGLE : ''}
-${buildBodyHtml(rendered)}
+${buildBodyHtml(rendered, interactive)}
 ${interactive ? `<script>\n${SCRIPT}\n</script>` : ''}
 </body>
 </html>
 `
 }
 
-export function buildBodyHtml(rendered: RenderedMarkdown): string {
-  const hasToc = rendered.toc.length > 0
+/** showToc：目錄只放在匯出的檔案裡，編輯器的預覽不顯示 */
+export function buildBodyHtml(rendered: RenderedMarkdown, showToc: boolean): string {
+  const hasToc = showToc && rendered.toc.length > 0
   return `<div class="nb-page${hasToc ? '' : ' no-toc'}">
 ${hasToc ? buildTocHtml(rendered.toc) : ''}
 <main class="nb-content">
@@ -70,7 +71,7 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (char) => entities[char])
 }
 
-const THEME_TOGGLE = `<button class="nb-theme-toggle" type="button" title="切換明亮 / 暗黑模式" aria-label="切換明亮 / 暗黑模式">${svgIcon(SUN_ICON_PATH, 'icon-sun')}${svgIcon(MOON_ICON_PATH, 'icon-moon')}</button>`
+const THEME_TOGGLE = `<button class="nb-theme-toggle" type="button" title="切換明亮 / 暗黑模式" aria-label="切換明亮 / 暗黑模式">${bloomSvg()}</button>`
 
 const SCRIPT = `
 (function () {

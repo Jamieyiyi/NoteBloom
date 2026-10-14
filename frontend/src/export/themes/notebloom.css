@@ -1,100 +1,105 @@
 /*
  * NoteBloom 匯出樣式
- * 配色沿用原本的 DarkStyle.css（紫 + 金）與 LightStyle.css（藍 + 橘），
+ * 和編輯介面同一套配色：中性白 / 炭灰為底，重點色是 Logo 小花的粉紅，刻意避開黃、橘色系。
  * 版面統一由下方共用規則處理；切換主題只是改 <html data-theme="dark|light">。
  */
 
-/* ---------- Dark（DarkStyle.css 配色） ---------- */
+/* ---------- Dark ---------- */
 :root,
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #121212;
-  --surface: #1a1a1d;
-  --surface-2: #222027;
-  --border: #2e2736;
-  --border-strong: #4a3f57;
-  --text: #f1e6fe;
-  --text-soft: #d9cfe6;
-  --muted: #a397b3;
-  --accent: #bb86fc;
-  --accent-soft: rgba(187, 134, 252, 0.12);
-  --link: #ff80ab;
-  --link-hover: #bb86fc;
-  --strong: #ffd700;
-  --mark: rgba(255, 215, 0, 0.28);
-  --success: #86fcbb;
-  --inline-code-bg: #2a2433;
-  --inline-code-border: #3a3145;
-  --inline-code-text: #d7b4ff;
-  --code-bg: #1e1e1e;
-  --code-header-bg: #232027;
-  --code-border: #33303a;
-  --code-text: #f1e6fe;
+  --bg: #17171a;
+  --surface: #1f1f24;
+  --surface-2: #26262c;
+  --border: #2c2c33;
+  --border-strong: #3d3d46;
+  --text: #ececf1;
+  --text-soft: #c9c9d1;
+  --muted: #9a9aa6;
+  --accent: #f08ba5;
+  --accent-soft: rgba(240, 139, 165, 0.12);
+  --link: #f08ba5;
+  --link-hover: #ffc2d1;
+  --strong: #ffb3c6;
+  --mark: rgba(240, 139, 165, 0.3);
+  --success: #8fd0a8;
+  --inline-code-bg: #2a2a31;
+  --inline-code-border: #393941;
+  --inline-code-text: #f5a3b9;
+  --code-bg: #1c1c21;
+  --code-header-bg: #222228;
+  --code-border: #2f2f37;
+  --code-text: #e4e4ea;
   --zebra: rgba(255, 255, 255, 0.02);
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 
-  --tok-comment: #6a9955;
-  --tok-punctuation: #d4d4d4;
-  --tok-tag: #dcdcaa;
-  --tok-property: #9cdcfe;
-  --tok-number: #b5cea8;
-  --tok-string: #ce9178;
-  --tok-operator: #569cd6;
-  --tok-keyword: #c586c0;
-  --tok-function: #dcdcaa;
-  --tok-variable: #9cdcfe;
+  --tok-comment: #6b7280;
+  --tok-punctuation: #9ca3af;
+  --tok-tag: #f08ba5;
+  --tok-property: #8ab4f8;
+  --tok-number: #c3a6f0;
+  --tok-string: #8fd0a8;
+  --tok-operator: #7cc4d8;
+  --tok-keyword: #c792ea;
+  --tok-function: #82aaff;
+  --tok-variable: #f5a3b9;
 
-  --api-get: #86fcbb;
-  --api-post: #ffb74d;
-  --api-put: #d191ff;
-  --api-patch: #64b5f6;
-  --api-delete: #ff8080;
+  --api-get: #8fd0a8;
+  --api-post: #82aaff;
+  --api-put: #c792ea;
+  --api-patch: #7cc4d8;
+  --api-delete: #ff7b8a;
 }
 
-/* ---------- Light（LightStyle.css 配色） ---------- */
+/* ---------- Light ---------- */
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f8f9fa;
-  --surface: #ffffff;
-  --surface-2: #eef1f5;
-  --border: #dee2e6;
-  --border-strong: #adb8cc;
-  --text: #212529;
-  --text-soft: #3d434a;
-  --muted: #6c757d;
-  --accent: #0056b3;
-  --accent-soft: rgba(0, 86, 179, 0.08);
-  --link: #007bff;
-  --link-hover: #ff4081;
-  --strong: #e8590c;
-  --mark: #fff176;
-  --success: #2b9a48;
-  --inline-code-bg: #e7f1fb;
-  --inline-code-border: #cfe2f6;
-  --inline-code-text: #0056b3;
-  --code-bg: #f6f8fa;
-  --code-header-bg: #eef1f5;
-  --code-border: #d6dde6;
-  --code-text: #212529;
+  --bg: #ffffff;
+  --surface: #fafafb;
+  --surface-2: #f4f4f6;
+  --border: #ececef;
+  --border-strong: #d4d4da;
+  --text: #26262b;
+  --text-soft: #44444c;
+  --muted: #7a7a85;
+  --accent: #d9577f;
+  --accent-soft: rgba(232, 99, 139, 0.08);
+  --link: #d9577f;
+  --link-hover: #a83a5f;
+  --strong: #c2416b;
+  --mark: rgba(240, 139, 165, 0.28);
+  --success: #2f8a57;
+  --inline-code-bg: #fbeff3;
+  --inline-code-border: #f4d6e0;
+  --inline-code-text: #b23a63;
+  --code-bg: #f8f8fa;
+  --code-header-bg: #f1f1f4;
+  --code-border: #e4e4e9;
+  --code-text: #26262b;
   --zebra: rgba(0, 0, 0, 0.015);
-  --shadow: 0 6px 18px rgba(33, 37, 41, 0.06);
+  --shadow: 0 6px 18px rgba(20, 20, 30, 0.06);
 
-  --tok-comment: #6f9a76;
-  --tok-punctuation: #8a8f96;
-  --tok-tag: #e07a1f;
-  --tok-property: #2c6aa8;
-  --tok-number: #2f9e57;
-  --tok-string: #d9534f;
-  --tok-operator: #3a8fc9;
-  --tok-keyword: #8a5cc2;
-  --tok-function: #b8860b;
-  --tok-variable: #139e86;
+  --tok-comment: #8a8f98;
+  --tok-punctuation: #6b7280;
+  --tok-tag: #c2416b;
+  --tok-property: #2f6fb3;
+  --tok-number: #7a52c7;
+  --tok-string: #2f8a57;
+  --tok-operator: #1f7a99;
+  --tok-keyword: #9b4fc9;
+  --tok-function: #2b5fd9;
+  --tok-variable: #c2416b;
 
-  --api-get: #008000;
-  --api-post: #d2691e;
-  --api-put: #6a1b9a;
-  --api-patch: #0056b3;
-  --api-delete: #b22222;
+  --api-get: #2f8a57;
+  --api-post: #2b5fd9;
+  --api-put: #9b4fc9;
+  --api-patch: #1f7a99;
+  --api-delete: #d64545;
+}
+
+/* 和 Logo 同款的五瓣粉紅小花，H2 標題與目錄共用 */
+:root {
+  --flower-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='%23f08ba5'%3E%3Ccircle cx='12' cy='6.5' r='4.6'/%3E%3Ccircle cx='17.23' cy='10.3' r='4.6'/%3E%3Ccircle cx='15.23' cy='16.45' r='4.6'/%3E%3Ccircle cx='8.77' cy='16.45' r='4.6'/%3E%3Ccircle cx='6.77' cy='10.3' r='4.6'/%3E%3C/g%3E%3Cellipse cx='6.2' cy='9.3' rx='1.1' ry='0.7' fill='%23fff' opacity='0.55' transform='rotate(-35 6.2 9.3)'/%3E%3Ccircle cx='12' cy='12' r='3.1' fill='%23fff5f8'/%3E%3C/svg%3E");
 }
 
 /* ---------- 基礎 ---------- */
@@ -131,17 +136,14 @@ body {
 }
 
 /* ---------- 目錄 ---------- */
+/* 不加外框，只是一串安靜的連結；目前章節用粉紅底標示 */
 .toc {
   position: sticky;
   top: 32px;
   align-self: start;
   max-height: calc(100vh - 64px);
   overflow-y: auto;
-  padding: 18px 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
+  padding: 4px 0;
 }
 
 .toc-title {
@@ -159,11 +161,12 @@ body {
   padding: 0;
 }
 
+/* 目錄的三個層級和內文標題用同樣的記號：H1 粗體深色、H2 小花、H3 掛在導引線上的淡灰小字 */
 .toc-link {
   display: block;
-  padding: 5px 10px;
-  border-radius: 8px;
-  color: var(--muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--text-soft);
   font-size: 14px;
   line-height: 1.5;
   text-decoration: none;
@@ -182,21 +185,51 @@ body {
 }
 
 .toc-level-1 > .toc-link {
+  padding-top: 6px;
+  padding-bottom: 6px;
   color: var(--text);
-  font-weight: 700;
+  font-size: 15.5px;
+  font-weight: 800;
 }
 
-.toc-level-1 > .toc-link.active {
-  color: var(--accent);
+.toc-level-1:not(:first-child) {
+  margin-top: 12px;
+}
+
+.toc-level-2:not(:first-child) {
+  margin-top: 2px;
 }
 
 .toc-level-2 > .toc-link {
-  padding-left: 22px;
+  font-weight: 500;
+}
+
+.toc-level-2 > .toc-link::before {
+  content: '';
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.45em;
+  vertical-align: -0.06em;
+  background: var(--flower-icon) center / contain no-repeat;
+}
+
+/* H3 掛在一條從 H2 小花正下方往下的導引線上；相鄰的 H3 之間沒有間距，線才會連成一條 */
+.toc-level-3 {
+  margin-left: 15px;
+  border-left: 1.5px solid var(--border-strong);
 }
 
 .toc-level-3 > .toc-link {
-  padding-left: 34px;
+  padding: 3px 10px 3px 12px;
+  border-radius: 0 6px 6px 0;
+  color: var(--muted);
   font-size: 13px;
+}
+
+.toc-level-3 > .toc-link.active {
+  margin-left: -1.5px;
+  border-left: 1.5px solid var(--accent);
 }
 
 /* ---------- 內文 ---------- */
@@ -235,10 +268,18 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
+/* H2 前面的粉紅小花（和 Logo 同款五瓣花）；用 inline-block 而不是 flex，標題裡的行內程式碼才不會吃掉空白 */
+.nb-content h2::before {
+  content: '';
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.4em;
+  vertical-align: -0.04em;
+  background: var(--flower-icon) center / contain no-repeat;
+}
+
 .nb-content h3 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   margin: 1.8em 0 0.6em;
   font-size: 1.25em;
   font-weight: 700;
@@ -246,9 +287,11 @@ body {
 
 .nb-content h3::before {
   content: '';
-  flex-shrink: 0;
+  display: inline-block;
   width: 4px;
-  height: 1em;
+  height: 0.95em;
+  margin-right: 10px;
+  vertical-align: -0.12em;
   border-radius: 2px;
   background: var(--accent);
 }
@@ -528,18 +571,18 @@ body {
   background: var(--accent-soft);
 }
 
-/* ---------- API method 標籤（沿用原本的 class 名稱） ---------- */
+/* ---------- API method 標籤（沿用原本 DarkStyle/LightStyle 的 class 名稱） ---------- */
 .api-method-get { color: var(--api-get); font-weight: bold; }
 .api-method-post { color: var(--api-post); font-weight: bold; }
 .api-method-put { color: var(--api-put); font-weight: bold; }
 .api-method-patch { color: var(--api-patch); font-weight: bold; }
 .api-method-delete { color: var(--api-delete); font-weight: bold; }
 
-/* ---------- 太陽 / 月亮切換 ---------- */
+/* ---------- 明暗切換（小花：晚上合起來、早上開花，動畫在 bloom.css） ---------- */
 .nb-theme-toggle {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  right: 24px;
+  bottom: 24px;
   z-index: 10;
   display: grid;
   place-items: center;
@@ -552,39 +595,22 @@ body {
   border-radius: 50%;
   box-shadow: var(--shadow);
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.nb-theme-toggle:hover {
-  transform: rotate(20deg);
-}
-
-.nb-theme-toggle svg {
-  width: 20px;
-  height: 20px;
-}
-
-/* 暗色時顯示太陽（點了變亮），亮色時顯示月亮 */
-.nb-theme-toggle .icon-moon,
-:root[data-theme='light'] .nb-theme-toggle .icon-sun {
-  display: none;
-}
-
-:root[data-theme='light'] .nb-theme-toggle .icon-moon {
-  display: block;
+  transition: background-color 0.2s ease;
 }
 
 /* ---------- 響應式 / 列印 ---------- */
-@media (max-width: 1100px) {
+@media (max-width: 900px) {
   .nb-page {
     grid-template-columns: minmax(0, 1fr);
     gap: 28px;
-    padding: 72px 20px 80px;
+    padding: 40px 20px 96px;
   }
 
   .toc {
     position: static;
     max-height: none;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
   }
 }
 

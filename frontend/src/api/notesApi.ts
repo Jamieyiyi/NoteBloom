@@ -1,16 +1,12 @@
 import type { Note, NoteSummary } from '../types/note'
+import { handle, sendJson } from './http'
 
 const BASE_URL = '/api/notes'
 
-async function handle<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({ message: response.statusText }))
-    throw new Error(body.message ?? `Request failed: ${response.status}`)
-  }
-  if (response.status === 204) {
-    return undefined as T
-  }
-  return response.json() as Promise<T>
+export interface NoteInput {
+  title: string
+  content: string
+  categoryId: string | null
 }
 
 export function listNotes(): Promise<NoteSummary[]> {
@@ -21,20 +17,12 @@ export function getNote(id: string): Promise<Note> {
   return fetch(`${BASE_URL}/${id}`).then((res) => handle(res))
 }
 
-export function createNote(title: string, content: string): Promise<Note> {
-  return fetch(BASE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, content }),
-  }).then((res) => handle(res))
+export function createNote(input: NoteInput): Promise<Note> {
+  return sendJson(BASE_URL, 'POST', input)
 }
 
-export function updateNote(id: string, title: string, content: string): Promise<Note> {
-  return fetch(`${BASE_URL}/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, content }),
-  }).then((res) => handle(res))
+export function updateNote(id: string, input: NoteInput): Promise<Note> {
+  return sendJson(`${BASE_URL}/${id}`, 'PUT', input)
 }
 
 export function deleteNote(id: string): Promise<void> {

@@ -4,6 +4,7 @@ import com.notebloom.dto.NoteRequest;
 import com.notebloom.dto.NoteResponse;
 import com.notebloom.exception.NoteNotFoundException;
 import com.notebloom.model.NoteModel;
+import com.notebloom.repository.CategoryRepository;
 import com.notebloom.repository.NoteRepository;
 import com.notebloom.service.impl.NoteServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,16 +28,19 @@ class NoteServiceImplTest {
     @Mock
     private NoteRepository noteRepository;
 
+    @Mock
+    private CategoryRepository categoryRepository;
+
     private NoteServiceImpl noteService;
 
     @BeforeEach
     void setUp() {
-        noteService = new NoteServiceImpl(noteRepository);
+        noteService = new NoteServiceImpl(noteRepository, categoryRepository);
     }
 
     @Test
     void createSavesNoteAndReturnsResponse() {
-        NoteRequest request = new NoteRequest("My Note", "# Hello");
+        NoteRequest request = new NoteRequest("My Note", "# Hello", null);
         when(noteRepository.save(any(NoteModel.class))).thenAnswer(invocation -> {
             NoteModel note = invocation.getArgument(0);
             note.setId(UUID.randomUUID());

@@ -2,7 +2,10 @@ package com.notebloom.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -31,6 +34,11 @@ public class NoteModel {
      */
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    /** 所屬分類；null 代表未分類。 */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private CategoryModel category;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

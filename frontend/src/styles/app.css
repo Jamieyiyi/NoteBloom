@@ -3,18 +3,20 @@
   height: 100vh;
 }
 
-button {
+button,
+input,
+select {
   font: inherit;
   color: inherit;
 }
 
 /* ---------- 側欄 ---------- */
 .note-sidebar {
-  width: 260px;
+  width: 284px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 16px 14px;
   overflow-y: auto;
   background: var(--app-sidebar-bg);
   border-right: 1px solid var(--app-border);
@@ -23,26 +25,28 @@ button {
 .note-sidebar-header {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
 .note-sidebar-brand {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
-.note-sidebar-brand h1 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+.brand-logo {
+  display: block;
+  width: 196px;
+  height: auto;
+  user-select: none;
 }
 
 .theme-toggle {
   display: grid;
   place-items: center;
+  flex-shrink: 0;
   width: 34px;
   height: 34px;
   padding: 0;
@@ -51,17 +55,22 @@ button {
   border: 1px solid var(--app-border);
   border-radius: 50%;
   cursor: pointer;
-  transition: color 0.15s ease, background-color 0.15s ease, transform 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .theme-toggle:hover {
-  color: var(--app-accent);
   background: var(--app-accent-soft);
-  transform: rotate(20deg);
+}
+
+.bloom-wrap {
+  display: flex;
 }
 
 .new-note-button {
   padding: 9px 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: 600;
   color: var(--app-accent-text);
   background: var(--app-accent);
@@ -75,77 +84,308 @@ button {
   filter: brightness(1.08);
 }
 
-.note-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.new-note-target {
+  margin-left: 2px;
+  font-weight: 500;
+  opacity: 0.9;
 }
 
-.note-list-item {
+.sidebar-count {
+  min-width: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: right;
+  color: var(--app-muted);
+}
+
+/* ---------- 花園：花（全部）→ 花莖 → 分類葉子 → 筆記小葉子 ---------- */
+.garden {
+  display: flex;
+  flex-direction: column;
+}
+
+.garden-root {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 0 2px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.garden-root-label {
+  flex: 1;
+  font-weight: 700;
+}
+
+.garden-root.active .garden-root-label {
+  color: var(--app-accent);
+}
+
+.garden-root .garden-flower {
+  flex-shrink: 0;
+  transition: transform 0.4s ease;
+}
+
+.garden-root:hover .garden-flower {
+  transform: rotate(36deg);
+}
+
+.garden-stem,
+.garden-twig {
+  position: relative;
+  list-style: none;
+  margin: 0;
+}
+
+/* 主花莖：從花的正下方（x = 16px）往下長 */
+.garden-stem {
+  padding: 4px 0 0 30px;
+}
+
+.garden-stem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 16px;
+  width: 2px;
+  height: 6px;
+  background: var(--stem);
+}
+
+.garden-node {
+  position: relative;
+}
+
+/* 每個節點畫自己那一段花莖；最後一個只畫到分岔處，花莖就在那裡結束 */
+.garden-stem > .garden-node::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -14px;
+  width: 2px;
+  background: var(--stem);
+}
+
+.garden-stem > .garden-node:last-child::before {
+  bottom: auto;
+  height: 10px;
+}
+
+/* 從花莖彎出去接到葉子的小枝 */
+.garden-stem > .garden-node > .garden-row::before,
+.garden-stem > .garden-node > .category-input-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -14px;
+  width: 12px;
+  height: 16px;
+  border-left: 2px solid var(--stem);
+  border-bottom: 2px solid var(--stem);
+  border-bottom-left-radius: 12px;
+}
+
+/* 分類底下的細枝：從分類葉子（x ≈ 12px）往下長；每層縮排 22px，5 層也放得下 */
+.garden-twig {
+  padding: 0 0 4px 22px;
+}
+
+.garden-twig > .garden-node::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -10px;
+  width: 1.5px;
+  background: var(--stem);
+  opacity: 0.75;
+}
+
+.garden-twig > .garden-node:last-child::before {
+  bottom: auto;
+  height: 14px;
+}
+
+.garden-twig > .garden-node > .garden-row::before,
+.garden-twig > .garden-node > .category-input-wrap::before,
+.garden-twig > .garden-empty::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -10px;
+  width: 7px;
+  height: 14px;
+  border-left: 1.5px solid var(--stem);
+  border-bottom: 1.5px solid var(--stem);
+  border-bottom-left-radius: 10px;
+  opacity: 0.75;
+}
+
+.garden-row {
+  position: relative;
   display: flex;
   align-items: center;
   border-radius: 8px;
 }
 
-.note-list-item:hover {
-  background: var(--app-hover);
-}
-
-.note-list-item.active {
-  background: var(--app-accent-soft);
-}
-
-.note-list-item.active .note-list-item-title {
-  color: var(--app-accent);
-  font-weight: 600;
-}
-
-.note-list-item-title {
+.garden-row-main {
   flex: 1;
-  padding: 8px 10px;
-  overflow: hidden;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px 6px 4px;
   text-align: left;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   background: none;
   border: none;
   border-radius: 8px;
   cursor: pointer;
 }
 
-.note-list-item-delete {
-  padding: 4px 10px;
-  font-size: 16px;
+.garden-row-main:hover {
+  background: var(--app-hover);
+}
+
+.garden-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.garden-leaf-wrap {
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.garden-leaf-wrap.folded {
+  opacity: 0.7;
+  transform: rotate(-40deg) scale(0.85);
+}
+
+.garden-row-main:hover .garden-leaf-wrap:not(.folded) {
+  transform: rotate(-10deg);
+}
+
+.garden-branch .garden-label {
+  font-weight: 600;
+}
+
+.garden-branch.active > .garden-row-main {
+  background: var(--app-accent-soft);
+}
+
+.garden-branch.active .garden-label {
+  color: var(--app-accent);
+}
+
+.garden-note .garden-row-main {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 13.5px;
+}
+
+.garden-note .garden-leaf,
+.garden-note .garden-flower {
+  flex-shrink: 0;
+}
+
+.garden-note.active > .garden-row-main {
+  background: var(--app-accent-soft);
+}
+
+.garden-note.active .garden-label {
+  font-weight: 600;
+  color: var(--app-accent);
+}
+
+.garden-empty {
+  padding: 3px 4px;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--app-muted);
+}
+
+.garden-actions {
+  position: absolute;
+  right: 4px;
+  display: none;
+  gap: 2px;
+}
+
+.garden-row:hover .garden-actions {
+  display: flex;
+}
+
+.garden-row:hover .sidebar-count {
+  visibility: hidden;
+}
+
+.garden-actions button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 13px;
+  color: var(--app-muted);
+  background: var(--app-sidebar-bg);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.garden-actions button:hover {
+  color: var(--app-danger);
+}
+
+.garden-add-button {
+  width: 100%;
+  gap: 7px;
+  padding: 6px 8px 6px 4px;
+  font-size: 13px;
   color: var(--app-muted);
   background: none;
   border: none;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s ease;
 }
 
-.note-list-item:hover .note-list-item-delete,
-.note-list-item.active .note-list-item-delete {
-  opacity: 1;
+.garden-add-button:hover {
+  color: var(--leaf-vein);
+  background: var(--app-hover);
 }
 
-.note-list-item-delete:hover {
+.category-input-wrap {
+  position: relative;
+  flex: 1;
+  padding: 2px 0;
+}
+
+.category-input {
+  width: 100%;
+  padding: 5px 9px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-accent);
+  border-radius: 8px;
+  outline: none;
+}
+
+.category-input-error {
+  margin: 4px 2px 0;
+  font-size: 12px;
   color: var(--app-danger);
-}
-
-.note-list-empty {
-  padding: 8px 10px;
-  font-size: 13px;
-  color: var(--app-muted);
 }
 
 /* ---------- 主畫面 ---------- */
 .app-main {
   flex: 1;
   min-width: 0;
+  position: relative;
   overflow-y: auto;
 }
 
@@ -160,12 +400,19 @@ button {
   height: 100%;
 }
 
-.note-editor-toolbar {
+.note-editor-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px 24px;
-  border-bottom: 1px solid var(--app-border);
+  gap: 14px;
+  padding: 12px 72px 10px 24px;
+}
+
+/* 明暗切換的小花固定在主畫面右上角（沒有選筆記時也看得到） */
+.app-theme-toggle {
+  position: absolute;
+  top: 13px;
+  right: 20px;
+  z-index: 5;
 }
 
 .note-title-input {
@@ -186,6 +433,180 @@ button {
   white-space: nowrap;
 }
 
+.category-select {
+  max-width: 160px;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border-strong);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* 分段切換（檢視模式 / 匯出樣式共用） */
+.segmented {
+  display: flex;
+  padding: 2px;
+  background: var(--app-hover);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+}
+
+.segmented button {
+  padding: 4px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--app-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.segmented button:hover {
+  color: var(--app-text);
+}
+
+.segmented button.active {
+  color: var(--app-accent-text);
+  background: var(--app-accent);
+}
+
+.icon-segmented button {
+  display: grid;
+  place-items: center;
+  padding: 4px 10px;
+}
+
+/* 工具列 + 匯出 */
+.note-editor-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 16px;
+  border-top: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-sidebar-bg);
+}
+
+.md-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.md-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding-right: 4px;
+  margin-right: 2px;
+  border-right: 1px solid var(--app-border);
+}
+
+.md-toolbar-group:last-child {
+  border-right: none;
+}
+
+.md-tool {
+  min-width: 28px;
+  height: 30px;
+  padding: 0 7px;
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--app-text);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.md-tool:hover,
+.md-tool.active {
+  color: var(--app-accent);
+  background: var(--app-accent-soft);
+}
+
+.md-tool code {
+  font-family: 'Fira Code', Consolas, monospace;
+}
+
+.md-popover-anchor {
+  position: relative;
+}
+
+.md-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  padding: 10px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border-strong);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.md-popover-title {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--app-muted);
+}
+
+.md-popover-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--app-muted);
+}
+
+.md-language-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  width: 300px;
+}
+
+.md-language-grid button {
+  padding: 6px 8px;
+  font-family: 'Fira Code', Consolas, monospace;
+  font-size: 12px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.md-language-grid button:hover {
+  color: var(--app-accent);
+  border-color: var(--app-accent);
+  background: var(--app-accent-soft);
+}
+
+.md-table-grid {
+  display: grid;
+  gap: 3px;
+}
+
+.md-table-cell {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: var(--app-hover);
+  border: 1px solid var(--app-border-strong);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.md-table-cell.active {
+  background: var(--app-accent-soft);
+  border-color: var(--app-accent);
+}
+
+/* ---------- 編輯 / 預覽區 ---------- */
 .note-editor-panes {
   flex: 1;
   min-height: 0;
@@ -193,7 +614,7 @@ button {
 }
 
 .markdown-input {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
   padding: 20px 24px;
   font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace;
@@ -207,15 +628,24 @@ button {
   resize: none;
 }
 
+/* 純編輯模式：文字置中，行長比較好讀 */
+.view-edit .markdown-input {
+  padding-left: max(24px, calc((100% - 860px) / 2));
+  padding-right: max(24px, calc((100% - 860px) / 2));
+}
+
 .markdown-input::placeholder {
   color: var(--app-muted);
 }
 
 .markdown-preview {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
   background: var(--app-bg);
   border: none;
+}
+
+.view-split .markdown-preview {
   border-left: 1px solid var(--app-border);
 }
 
@@ -224,10 +654,11 @@ button {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
-.export-menu button {
-  padding: 6px 10px;
+.export-button {
+  padding: 5px 10px;
   font-size: 13px;
   white-space: nowrap;
   background: var(--app-surface);
@@ -237,33 +668,7 @@ button {
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-.export-menu button:hover {
+.export-button:hover {
   color: var(--app-accent);
   border-color: var(--app-accent);
-}
-
-.export-menu .theme-switch {
-  display: flex;
-  padding: 2px;
-  background: var(--app-hover);
-  border: 1px solid var(--app-border);
-  border-radius: 8px;
-}
-
-.export-menu .theme-switch button {
-  padding: 4px 10px;
-  color: var(--app-muted);
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-}
-
-.export-menu .theme-switch button.active {
-  color: var(--app-accent-text);
-  background: var(--app-accent);
-}
-
-.export-menu-label {
-  font-size: 12px;
-  color: var(--app-muted);
 }

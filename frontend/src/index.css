@@ -1,55 +1,79 @@
-/* 編輯介面配色：明亮沿用 LightStyle 的藍，暗黑沿用 DarkStyle 的紫 */
+/*
+ * 編輯介面配色：中性白 / 灰為底，重點色取自 Logo 的粉紅小花。
+ * 側欄花園的葉子用低彩度的灰綠，避免搶走粉紅的焦點。
+ */
 :root {
   color-scheme: light;
   --app-bg: #ffffff;
-  --app-sidebar-bg: #f8f9fa;
+  --app-sidebar-bg: #f7f7f8;
   --app-surface: #ffffff;
-  --app-editor-bg: #fbfbfc;
-  --app-border: #e2e5e9;
-  --app-border-strong: #cfd4da;
-  --app-text: #1f2328;
-  --app-muted: #6c757d;
-  --app-accent: #0056b3;
+  --app-editor-bg: #fcfcfd;
+  --app-border: #ececef;
+  --app-border-strong: #d9d9de;
+  --app-text: #26262b;
+  --app-muted: #85858f;
+  --app-accent: #d9577f;
   --app-accent-text: #ffffff;
-  --app-accent-soft: rgba(0, 86, 179, 0.09);
+  --app-accent-soft: rgba(232, 99, 139, 0.1);
   --app-hover: rgba(0, 0, 0, 0.04);
-  --app-danger: #d33;
+  --app-danger: #d64545;
+
+  --petal: #f08ba5;
+  --petal-center: #fff5f8;
+  --leaf: #9bb8a6;
+  --leaf-vein: #6f8f7b;
+  --leaf-dry: #c4c4cc;
+  --stem: #c6d4cb;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --app-bg: #121212;
-    --app-sidebar-bg: #17151b;
-    --app-surface: #1e1b22;
-    --app-editor-bg: #141316;
-    --app-border: #2e2736;
-    --app-border-strong: #43394f;
-    --app-text: #f1e6fe;
-    --app-muted: #9d93a8;
-    --app-accent: #bb86fc;
-    --app-accent-text: #1a1220;
-    --app-accent-soft: rgba(187, 134, 252, 0.14);
+    --app-bg: #17171a;
+    --app-sidebar-bg: #1d1d21;
+    --app-surface: #24242a;
+    --app-editor-bg: #151518;
+    --app-border: #2c2c33;
+    --app-border-strong: #3d3d46;
+    --app-text: #ececf1;
+    --app-muted: #9a9aa6;
+    --app-accent: #f08ba5;
+    --app-accent-text: #2a1219;
+    --app-accent-soft: rgba(240, 139, 165, 0.15);
     --app-hover: rgba(255, 255, 255, 0.05);
-    --app-danger: #ff8080;
+    --app-danger: #ff7b8a;
+
+    --petal: #f08ba5;
+    --petal-center: #fff5f8;
+    --leaf: #86a893;
+    --leaf-vein: #5d7d69;
+    --leaf-dry: #6e6e78;
+    --stem: #46544b;
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --app-bg: #121212;
-  --app-sidebar-bg: #17151b;
-  --app-surface: #1e1b22;
-  --app-editor-bg: #141316;
-  --app-border: #2e2736;
-  --app-border-strong: #43394f;
-  --app-text: #f1e6fe;
-  --app-muted: #9d93a8;
-  --app-accent: #bb86fc;
-  --app-accent-text: #1a1220;
-  --app-accent-soft: rgba(187, 134, 252, 0.14);
+  --app-bg: #17171a;
+  --app-sidebar-bg: #1d1d21;
+  --app-surface: #24242a;
+  --app-editor-bg: #151518;
+  --app-border: #2c2c33;
+  --app-border-strong: #3d3d46;
+  --app-text: #ececf1;
+  --app-muted: #9a9aa6;
+  --app-accent: #f08ba5;
+  --app-accent-text: #2a1219;
+  --app-accent-soft: rgba(240, 139, 165, 0.15);
   --app-hover: rgba(255, 255, 255, 0.05);
-  --app-danger: #ff8080;
+  --app-danger: #ff7b8a;
+
+  --petal: #f08ba5;
+  --petal-center: #fff5f8;
+  --leaf: #86a893;
+  --leaf-vein: #5d7d69;
+  --leaf-dry: #6e6e78;
+  --stem: #46544b;
 }
 
 * {

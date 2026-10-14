@@ -1,0 +1,92 @@
+/*
+ * 明暗切換鈕的小花（搭配 src/ui/bloom.ts）。
+ * 編輯介面直接 import；匯出的 HTML 也會把這份 CSS 一起嵌進去。
+ * 預設（明亮）是開花；暗黑模式時花瓣收成花苞、花心縮起來、露出花萼。
+ */
+.bloom {
+  width: 22px;
+  height: 26px;
+  overflow: visible;
+  transition: transform 0.3s ease;
+}
+
+.bloom-stem {
+  stroke: #8fb59c;
+}
+
+.bloom-leaf,
+.bloom-sepal {
+  fill: #8fb59c;
+}
+
+.bloom-sepal {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.bloom-petal,
+.bloom-center {
+  transform-box: view-box;
+  transform-origin: 12px 10px;
+}
+
+.bloom-petal {
+  fill: #f08ba5;
+  transform: rotate(var(--open));
+  transition:
+    transform 0.7s cubic-bezier(0.34, 1.45, 0.64, 1),
+    fill 0.5s ease;
+}
+
+.bloom-center {
+  fill: #fff5f8;
+  transition: transform 0.45s ease 0.2s;
+}
+
+/* 晚上：合起來 */
+:root[data-theme='dark'] .bloom-petal {
+  fill: #d9758f;
+  transform: rotate(var(--closed)) scale(0.6, 0.85);
+  transition:
+    transform 0.6s cubic-bezier(0.5, 0, 0.3, 1),
+    fill 0.5s ease;
+}
+
+:root[data-theme='dark'] .bloom-center {
+  transform: scale(0);
+  transition-delay: 0s;
+}
+
+:root[data-theme='dark'] .bloom-sepal {
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .bloom-petal {
+    fill: #d9758f;
+    transform: rotate(var(--closed)) scale(0.6, 0.85);
+  }
+
+  :root:not([data-theme]) .bloom-center {
+    transform: scale(0);
+  }
+
+  :root:not([data-theme]) .bloom-sepal {
+    opacity: 1;
+  }
+}
+
+/* 滑鼠移上去時輕輕搖一下 */
+button:hover > .bloom,
+button:hover > span > .bloom {
+  transform: rotate(-8deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bloom,
+  .bloom-petal,
+  .bloom-center,
+  .bloom-sepal {
+    transition: none;
+  }
+}

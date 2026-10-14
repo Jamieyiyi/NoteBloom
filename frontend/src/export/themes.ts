@@ -1,22 +1,7 @@
 import exportStyle from './themes/notebloom.css?raw'
+import bloomStyle from '../ui/bloom.css?raw'
 
 export type ExportThemeId = 'dark' | 'light'
 
-export interface ExportTheme {
-  id: ExportThemeId
-  label: string
-}
-
-/** 兩種主題共用同一份 CSS，差別只在 <html data-theme> */
-export const EXPORT_STYLE = exportStyle
-
-export const EXPORT_THEMES: Record<ExportThemeId, ExportTheme> = {
-  dark: { id: 'dark', label: 'Dark' },
-  light: { id: 'light', label: 'Light' },
-}
-
-export const DEFAULT_EXPORT_THEME: ExportThemeId = 'dark'
-
-export function isExportThemeId(value: unknown): value is ExportThemeId {
-  return value === 'dark' || value === 'light'
-}
+/** 匯出 HTML 用的 CSS：兩種明暗模式共用，差別只在 <html data-theme>；開花切換鈕的樣式和編輯介面共用 */
+export const EXPORT_STYLE = `${exportStyle}\n${bloomStyle}`

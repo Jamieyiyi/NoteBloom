@@ -22,7 +22,7 @@ export function MarkdownPreview({ markdown, themeId }: MarkdownPreviewProps) {
   useEffect(() => {
     const doc = frameRef.current?.contentDocument
     if (!ready || !doc) return
-    doc.body.innerHTML = buildBodyHtml(renderMarkdown(deferredMarkdown))
+    doc.body.innerHTML = buildBodyHtml(renderMarkdown(deferredMarkdown), false)
   }, [deferredMarkdown, ready])
 
   useEffect(() => {
