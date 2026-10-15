@@ -1,10 +1,10 @@
 import type { Category } from '../types/category'
-import { handle, sendJson } from './http'
+import { getJson, sendDelete, sendJson } from './http'
 
 const BASE_URL = '/api/categories'
 
 export function listCategories(): Promise<Category[]> {
-  return fetch(BASE_URL).then((res) => handle(res))
+  return getJson(BASE_URL)
 }
 
 export function createCategory(name: string, parentId: string | null): Promise<Category> {
@@ -17,5 +17,5 @@ export function updateCategory(id: string, name: string, parentId: string | null
 }
 
 export function deleteCategory(id: string): Promise<void> {
-  return fetch(`${BASE_URL}/${id}`, { method: 'DELETE' }).then((res) => handle(res))
+  return sendDelete(`${BASE_URL}/${id}`)
 }

@@ -707,3 +707,393 @@ select {
   color: var(--app-accent);
   border-color: var(--app-accent);
 }
+
+/* ---------- Login ---------- */
+.login-page {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background: var(--app-sidebar-bg);
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 360px;
+  padding: 32px 28px 24px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(20, 20, 30, 0.08);
+}
+
+.login-logo {
+  display: block;
+  width: 210px;
+  height: auto;
+  margin: 0 auto 8px;
+  user-select: none;
+}
+
+.login-hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  text-align: center;
+  color: var(--app-muted);
+}
+
+/* ---------- Shared form controls ---------- */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--app-muted);
+}
+
+.form-field input,
+.form-field select {
+  padding: 8px 10px;
+  font-size: 14px;
+  color: var(--app-text);
+  background: var(--app-bg);
+  border: 1px solid var(--app-border-strong);
+  border-radius: 8px;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.user-inline-input:focus {
+  outline: 2px solid var(--app-accent-soft);
+  border-color: var(--app-accent);
+}
+
+.form-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--app-danger);
+}
+
+.form-success {
+  margin: 0;
+  font-size: 13px;
+  color: var(--app-text);
+}
+
+.primary-button,
+.secondary-button {
+  padding: 9px 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.15s ease, border-color 0.15s ease;
+}
+
+.primary-button {
+  color: var(--app-accent-text);
+  background: var(--app-accent);
+  border: none;
+}
+
+.primary-button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.secondary-button {
+  color: var(--app-text);
+  background: transparent;
+  border: 1px solid var(--app-border-strong);
+}
+
+.secondary-button:hover {
+  border-color: var(--app-accent);
+}
+
+.link-button {
+  padding: 2px 4px;
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--app-accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+.link-button.muted {
+  color: var(--app-muted);
+}
+
+.mono {
+  font-family: 'Fira Code', Consolas, monospace;
+}
+
+/* ---------- Account menu (sidebar footer) ---------- */
+.note-sidebar-footer {
+  position: sticky;
+  bottom: -16px;
+  margin: auto -14px -16px;
+  padding: 12px 14px 14px;
+  background: var(--app-sidebar-bg);
+  border-top: 1px solid var(--app-border);
+}
+
+.account-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.account-avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-weight: 700;
+  color: var(--app-accent-text);
+  background: var(--app-accent);
+  border-radius: 50%;
+}
+
+.account-text {
+  min-width: 0;
+}
+
+.account-name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-meta {
+  font-size: 12px;
+  color: var(--app-muted);
+}
+
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 8px;
+  padding-left: 42px;
+}
+
+.account-actions button {
+  padding: 0;
+  font-size: 12.5px;
+  color: var(--app-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.account-actions button:hover {
+  color: var(--app-accent);
+}
+
+/* ---------- Dialogs ---------- */
+.app-dialog {
+  width: min(420px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 0;
+  color: var(--app-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.app-dialog.wide {
+  width: min(860px, calc(100vw - 32px));
+}
+
+.app-dialog::backdrop {
+  background: rgba(15, 15, 20, 0.45);
+}
+
+.app-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0;
+}
+
+.app-dialog-header h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.app-dialog-close {
+  font-size: 22px;
+  line-height: 1;
+  color: var(--app-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 20px 20px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ---------- Account management ---------- */
+.new-user-form {
+  padding: 14px;
+  background: var(--app-sidebar-bg);
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+}
+
+.new-user-title {
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.new-user-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px 12px;
+}
+
+.input-with-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.input-with-button input {
+  flex: 1;
+  min-width: 0;
+}
+
+.new-user-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.new-user-footer > span {
+  flex: 1;
+  word-break: break-all;
+}
+
+.user-table-wrap {
+  overflow-x: auto;
+}
+
+.user-table {
+  width: 100%;
+  font-size: 13.5px;
+  border-collapse: collapse;
+}
+
+.user-table th {
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--app-muted);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.user-table td {
+  padding: 7px 8px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.user-table tr.disabled td {
+  color: var(--app-muted);
+}
+
+.user-table select {
+  padding: 4px 6px;
+  color: var(--app-text);
+  background: var(--app-bg);
+  border: 1px solid var(--app-border-strong);
+  border-radius: 6px;
+}
+
+.user-username {
+  white-space: nowrap;
+}
+
+.user-self {
+  font-size: 12px;
+  color: var(--app-muted);
+}
+
+.user-inline-input {
+  width: 100%;
+  min-width: 110px;
+  padding: 4px 6px;
+  color: var(--app-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.user-inline-input:hover {
+  border-color: var(--app-border-strong);
+}
+
+.user-enabled {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.user-enabled input {
+  accent-color: var(--app-accent);
+}
+
+.user-reset-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.user-reset-row .user-inline-input {
+  border-color: var(--app-border-strong);
+}
+
+.user-reset-note {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--app-muted);
+}
+
+.user-reset-note.error {
+  color: var(--app-danger);
+}

@@ -6,7 +6,7 @@
 ## 架構
 
 ```
-瀏覽器 → https://funtoo.cc → Cloudflare（Access 驗證 email）
+瀏覽器 → https://funtoo.cc → Cloudflare（Access 驗證 email，選用）
                                 → cloudflared（Windows 服務）
                                     → NoteBloom jar（內嵌 Tomcat :8080，同時提供前端畫面與 /api）
                                         → PostgreSQL（Windows 服務 :5432，database notebloom / schema notebloom）
@@ -61,7 +61,7 @@ cd <專案資料夾>
 powershell -ExecutionPolicy Bypass -File deploy\windows\install.ps1
 ```
 
-- 第一次執行會建立 `C:\notebloom\application.properties` 後停下來。用 `notepad C:\notebloom\application.properties` 打開，把 `spring.datasource.password=` 改成第 2 步的密碼，存檔後**再執行一次**同一行指令。
+- 第一次執行會建立 `C:\notebloom\application.properties` 後停下來。用 `notepad C:\notebloom\application.properties` 打開，把 `spring.datasource.password=` 改成第 2 步的密碼，並把 `notebloom.bootstrap.*` 三行取消註解、填上管理者帳號（見下方「啟用管理者帳號」），存檔後**再執行一次**同一行指令。
 - 第二次執行會把 jar 複製到 `C:\notebloom\notebloom.jar`，並建立名為 **NoteBloom** 的「工作排程器」工作：開機啟動（不用登入）、異常結束每分鐘重試。
 
 約 15 秒後打開 http://localhost:8080 確認。
@@ -69,6 +69,22 @@ powershell -ExecutionPolicy Bypass -File deploy\windows\install.ps1
 - 管理：工作排程器 → 工作排程器程式庫 → NoteBloom（啟動 / 結束 / 停用）
 - Log：`C:\notebloom\logs\notebloom.log`（打不開時看 `Get-Content C:\notebloom\logs\notebloom.log -Tail 30`）
 - 更新版本：`git pull` → 重做第 3、4 步
+
+### 啟用管理者帳號
+
+NoteBloom 只有管理者能建立帳號（沒有自行註冊）。第一次升級到有帳號功能的版本時，Liquibase 會建立一個還沒有密碼的管理者，並把**既有的筆記和分類全部歸給它**。
+
+1. 在 `C:\notebloom\application.properties` 加上（或取消註解）：
+   ```properties
+   notebloom.bootstrap.admin-username=你的登入帳號
+   notebloom.bootstrap.admin-display-name=顯示名稱
+   notebloom.bootstrap.admin-password=至少 8 個字元的密碼
+   ```
+2. 重新啟動 NoteBloom（工作排程器 → NoteBloom → 結束 → 執行），Log 會出現 `Administrator account '...' activated`。
+3. 打開網站用這組帳密登入，確認看得到原本的筆記。
+4. **把這三行從設定檔刪掉**再重啟一次。密碼已存進資料庫，之後在網站左下角「修改密碼」更改即可。
+
+其他人的帳號：登入後點左下角「帳號管理」→ 新增帳號，把產生的初始密碼交給對方，對方登入後可自行修改。每個帳號只看得到自己的筆記與分類。
 
 ## 5. Cloudflare Tunnel
 
@@ -79,9 +95,12 @@ powershell -ExecutionPolicy Bypass -File deploy\windows\install.ps1
 3. 公用主機名稱：子網域留空、網域 `funtoo.cc`、路徑留空、服務類型 **HTTP**、URL **localhost:8080**。
 4. 若出現「DNS 記錄已存在」：Cloudflare → funtoo.cc → DNS → 記錄，刪掉從 GoDaddy 搬過來的 `@` A 記錄與 `www` CNAME，再存一次。
 
-## 6. Cloudflare Access（必做）
+## 6. Cloudflare Access（選用）
 
-NoteBloom 沒有登入機制，公開前一定要擋：Zero Trust → Access 控制 → 應用程式 → 新增 → 自我託管。
+NoteBloom 已經有自己的帳號密碼登入，Access 不再是必要的。保留它等於多一道門：每個人要先通過 Access，再登入 NoteBloom。
+只有自己和少數人使用、想多一層保護時可以保留；要開放給更多人使用時，可到 Zero Trust → Access 控制 → 應用程式，刪除 `funtoo.cc` 這個應用程式。
+
+設定方式：Zero Trust → Access 控制 → 應用程式 → 新增 → 自我託管。
 
 - 公開主機名稱：網域 `funtoo.cc`（子網域、路徑留空）
 - Access 原則：動作「允許」，包含 →「電子郵件」→ 自己的 email

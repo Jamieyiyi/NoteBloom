@@ -2,10 +2,12 @@ package com.notebloom.controller;
 
 import com.notebloom.dto.CategoryRequest;
 import com.notebloom.dto.CategoryResponse;
+import com.notebloom.security.AuthenticatedUser;
 import com.notebloom.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,24 +32,26 @@ public class CategoryController {
     }
 
     @GetMapping
-    public List<CategoryResponse> list() {
-        return categoryService.list();
+    public List<CategoryResponse> list(@AuthenticationPrincipal AuthenticatedUser user) {
+        return categoryService.list(user.id());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryResponse create(@Valid @RequestBody CategoryRequest request) {
-        return categoryService.create(request);
+    public CategoryResponse create(@AuthenticationPrincipal AuthenticatedUser user,
+                                   @Valid @RequestBody CategoryRequest request) {
+        return categoryService.create(user.id(), request);
     }
 
     @PutMapping("/{id}")
-    public CategoryResponse update(@PathVariable UUID id, @Valid @RequestBody CategoryRequest request) {
-        return categoryService.update(id, request);
+    public CategoryResponse update(@AuthenticationPrincipal AuthenticatedUser user,
+                                   @PathVariable UUID id, @Valid @RequestBody CategoryRequest request) {
+        return categoryService.update(user.id(), id, request);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        categoryService.delete(id);
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID id) {
+        categoryService.delete(user.id(), id);
         return ResponseEntity.noContent().build();
     }
 }

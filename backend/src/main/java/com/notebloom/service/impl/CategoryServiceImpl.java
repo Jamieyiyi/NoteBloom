@@ -8,6 +8,7 @@ import com.notebloom.exception.InvalidCategoryHierarchyException;
 import com.notebloom.model.CategoryModel;
 import com.notebloom.repository.CategoryRepository;
 import com.notebloom.repository.NoteRepository;
+import com.notebloom.repository.UserRepository;
 import com.notebloom.service.CategoryService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -23,45 +24,49 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final NoteRepository noteRepository;
+    private final UserRepository userRepository;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository, NoteRepository noteRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, NoteRepository noteRepository,
+                               UserRepository userRepository) {
         this.categoryRepository = categoryRepository;
         this.noteRepository = noteRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CategoryResponse> list() {
-        return categoryRepository.findAll(Sort.by("createdAt")).stream()
+    public List<CategoryResponse> list(UUID ownerId) {
+        return categoryRepository.findByOwnerId(ownerId, Sort.by("createdAt")).stream()
                 .map(CategoryResponse::from)
                 .toList();
     }
 
     @Override
-    public CategoryResponse create(CategoryRequest request) {
+    public CategoryResponse create(UUID ownerId, CategoryRequest request) {
         String name = request.name().trim();
-        CategoryModel parent = findParent(request.parentId());
+        CategoryModel parent = findParent(ownerId, request.parentId());
         if (depthOf(parent) + 1 > CategoryModel.MAX_DEPTH) {
             throw new InvalidCategoryHierarchyException("分類最多只能有 " + CategoryModel.MAX_DEPTH + " 層");
         }
-        ensureUniqueAmongSiblings(name, parent, null);
+        ensureUniqueAmongSiblings(ownerId, name, parent, null);
 
         CategoryModel category = new CategoryModel();
+        category.setOwner(userRepository.getReferenceById(ownerId));
         category.setName(name);
         category.setParent(parent);
         return CategoryResponse.from(categoryRepository.save(category));
     }
 
     @Override
-    public CategoryResponse update(UUID id, CategoryRequest request) {
-        CategoryModel category = findOrThrow(id);
+    public CategoryResponse update(UUID ownerId, UUID id, CategoryRequest request) {
+        CategoryModel category = findOrThrow(ownerId, id);
         String name = request.name().trim();
-        CategoryModel parent = findParent(request.parentId());
+        CategoryModel parent = findParent(ownerId, request.parentId());
 
         if (!Objects.equals(idOf(parent), idOf(category.getParent()))) {
             ensureCanMove(category, parent);
         }
-        ensureUniqueAmongSiblings(name, parent, id);
+        ensureUniqueAmongSiblings(ownerId, name, parent, id);
 
         category.setName(name);
         category.setParent(parent);
@@ -69,8 +74,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void delete(UUID id) {
-        CategoryModel category = findOrThrow(id);
+    public void delete(UUID ownerId, UUID id) {
+        CategoryModel category = findOrThrow(ownerId, id);
         CategoryModel parent = category.getParent();
         noteRepository.moveCategory(id, parent);
         categoryRepository.reparentChildren(id, parent);
@@ -89,9 +94,9 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
-    private void ensureUniqueAmongSiblings(String name, CategoryModel parent, UUID excludeId) {
+    private void ensureUniqueAmongSiblings(UUID ownerId, String name, CategoryModel parent, UUID excludeId) {
         List<CategoryModel> siblings = parent == null
-                ? categoryRepository.findByParentIsNull()
+                ? categoryRepository.findByOwnerIdAndParentIsNull(ownerId)
                 : categoryRepository.findByParentId(parent.getId());
         boolean duplicate = siblings.stream()
                 .anyMatch(sibling -> sibling.getName().equalsIgnoreCase(name) && !sibling.getId().equals(excludeId));
@@ -117,12 +122,13 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElse(0);
     }
 
-    private CategoryModel findParent(UUID parentId) {
-        return parentId == null ? null : findOrThrow(parentId);
+    private CategoryModel findParent(UUID ownerId, UUID parentId) {
+        return parentId == null ? null : findOrThrow(ownerId, parentId);
     }
 
-    private CategoryModel findOrThrow(UUID id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new CategoryNotFoundException(id));
+    /** Another account's category is reported as missing, so its existence is not revealed. */
+    private CategoryModel findOrThrow(UUID ownerId, UUID id) {
+        return categoryRepository.findByIdAndOwnerId(id, ownerId).orElseThrow(() -> new CategoryNotFoundException(id));
     }
 
     private static UUID idOf(CategoryModel category) {

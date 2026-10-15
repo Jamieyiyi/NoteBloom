@@ -40,6 +40,11 @@ public class NoteModel {
     @JoinColumn(name = "category_id")
     private CategoryModel category;
 
+    /** The account the note belongs to; only that account can see or change it. */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "owner_id", nullable = false, updatable = false)
+    private UserModel owner;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

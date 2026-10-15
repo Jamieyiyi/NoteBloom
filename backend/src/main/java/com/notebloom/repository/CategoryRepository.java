@@ -1,17 +1,23 @@
 package com.notebloom.repository;
 
 import com.notebloom.model.CategoryModel;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface CategoryRepository extends JpaRepository<CategoryModel, UUID> {
 
-    List<CategoryModel> findByParentIsNull();
+    List<CategoryModel> findByOwnerId(UUID ownerId, Sort sort);
+
+    Optional<CategoryModel> findByIdAndOwnerId(UUID id, UUID ownerId);
+
+    List<CategoryModel> findByOwnerIdAndParentIsNull(UUID ownerId);
 
     List<CategoryModel> findByParentId(UUID parentId);
 

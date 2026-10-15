@@ -2,6 +2,7 @@ package com.notebloom.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -13,19 +14,29 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({NoteNotFoundException.class, CategoryNotFoundException.class})
+    @ExceptionHandler({NoteNotFoundException.class, CategoryNotFoundException.class, UserNotFoundException.class})
     public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
-    @ExceptionHandler(DuplicateCategoryNameException.class)
-    public ResponseEntity<Map<String, Object>> handleDuplicate(DuplicateCategoryNameException ex) {
+    @ExceptionHandler({DuplicateCategoryNameException.class, DuplicateUsernameException.class})
+    public ResponseEntity<Map<String, Object>> handleDuplicate(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body(HttpStatus.CONFLICT, ex.getMessage()));
     }
 
-    @ExceptionHandler(InvalidCategoryHierarchyException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidHierarchy(InvalidCategoryHierarchyException ex) {
+    @ExceptionHandler({InvalidCategoryHierarchyException.class, InvalidAccountOperationException.class})
+    public ResponseEntity<Map<String, Object>> handleInvalidRequest(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body(HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body(HttpStatus.UNAUTHORIZED, ex.getMessage()));
+    }
+
+    @ExceptionHandler(LoginLockedException.class)
+    public ResponseEntity<Map<String, Object>> handleLoginLocked(LoginLockedException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(body(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

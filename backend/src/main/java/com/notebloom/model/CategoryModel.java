@@ -37,6 +37,11 @@ public class CategoryModel {
     @JoinColumn(name = "parent_id")
     private CategoryModel parent;
 
+    /** The account the category belongs to; a category and its parent always share the same owner. */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "owner_id", nullable = false, updatable = false)
+    private UserModel owner;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

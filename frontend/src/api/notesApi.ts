@@ -1,5 +1,5 @@
 import type { Note, NoteSummary } from '../types/note'
-import { handle, sendJson } from './http'
+import { getJson, sendDelete, sendJson } from './http'
 
 const BASE_URL = '/api/notes'
 
@@ -10,11 +10,11 @@ export interface NoteInput {
 }
 
 export function listNotes(): Promise<NoteSummary[]> {
-  return fetch(BASE_URL).then((res) => handle(res))
+  return getJson(BASE_URL)
 }
 
 export function getNote(id: string): Promise<Note> {
-  return fetch(`${BASE_URL}/${id}`).then((res) => handle(res))
+  return getJson(`${BASE_URL}/${id}`)
 }
 
 export function createNote(input: NoteInput): Promise<Note> {
@@ -26,5 +26,5 @@ export function updateNote(id: string, input: NoteInput): Promise<Note> {
 }
 
 export function deleteNote(id: string): Promise<void> {
-  return fetch(`${BASE_URL}/${id}`, { method: 'DELETE' }).then((res) => handle(res))
+  return sendDelete(`${BASE_URL}/${id}`)
 }

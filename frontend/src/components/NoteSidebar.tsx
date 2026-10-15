@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import type { NoteSummary } from '../types/note'
 import { MAX_CATEGORY_DEPTH, type Category, type CategoryFilter } from '../types/category'
 import type { AppTheme } from '../ui/useAppTheme'
@@ -20,6 +20,8 @@ interface NoteSidebarProps {
   onCreateCategory: (name: string, parentId: string | null) => Promise<void>
   onRenameCategory: (id: string, name: string) => Promise<void>
   onDeleteCategory: (id: string) => Promise<void>
+  /** Shown pinned to the bottom of the sidebar (the account menu) */
+  footer?: ReactNode
 }
 
 /** 樹狀節點共用的狀態與動作，避免每一層都要逐一傳 props */
@@ -36,7 +38,7 @@ interface GardenContext extends NoteSidebarProps {
  * 每片分類葉子底下再長出子分類與筆記的小葉子；正在看的筆記會開成小花苞。
  */
 export function NoteSidebar(props: NoteSidebarProps) {
-  const { notes, categories, filter, theme, onFilterChange, onCreate, onCreateCategory } = props
+  const { notes, categories, filter, theme, footer, onFilterChange, onCreate, onCreateCategory } = props
   const [collapsed, setCollapsed] = useState<Set<CategoryFilter>>(new Set())
   const [adding, setAdding] = useState(false)
 
@@ -112,6 +114,7 @@ export function NoteSidebar(props: NoteSidebarProps) {
           </li>
         </ul>
       </nav>
+      {footer ? <div className="note-sidebar-footer">{footer}</div> : null}
     </aside>
   )
 }

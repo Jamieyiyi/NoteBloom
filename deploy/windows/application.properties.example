@@ -10,3 +10,12 @@ server.port=8080
 
 # Log 會寫到安裝資料夾底下的 logs\notebloom.log
 logging.file.name=logs/notebloom.log
+
+# 對外網址（給 CORS 判斷用；前後端同網域時通常用不到，保留以防萬一）
+notebloom.cors.allowed-origins=https://funtoo.cc,https://www.funtoo.cc
+
+# 第一次啟動時用來啟用管理者帳號（既有筆記都會歸給這個帳號）：把下面三行開頭的 # 拿掉並填好。
+# 登入成功後請把這三行刪掉；之後再改這裡也不會影響已設定好的密碼。
+#notebloom.bootstrap.admin-username=你的登入帳號（英數字）
+#notebloom.bootstrap.admin-display-name=顯示名稱
+#notebloom.bootstrap.admin-password=至少 8 個字元的密碼

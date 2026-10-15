@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Accounts and per-user data isolation.
+        Existing notes and categories are handed to an initial administrator account. That account
+        has no password yet; AdminAccountInitializer sets its username and password from the
+        notebloom.bootstrap.* properties on the next startup.
+    -->
+
+    <changeSet id="002-create-users" author="notebloom">
+        <createTable tableName="users">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" primaryKeyName="users_pkey"/>
+            </column>
+            <column name="username" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_users_username"/>
+            </column>
+            <column name="display_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Null until a password is set; such an account cannot log in with a password -->
+            <column name="password_hash" type="VARCHAR(100)"/>
+            <column name="role" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="002-insert-initial-admin" author="notebloom">
+        <insert tableName="users">
+            <column name="id" value="6f1c2a4e-0b7d-4c55-9a3e-2d8f5b1e7c90"/>
+            <column name="username" value="admin"/>
+            <column name="display_name" value="Admin"/>
+            <column name="role" value="ADMIN"/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="created_at" valueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="002-add-note-owner" author="notebloom">
+        <addColumn tableName="notes">
+            <column name="owner_id" type="UUID"/>
+        </addColumn>
+        <update tableName="notes">
+            <column name="owner_id" value="6f1c2a4e-0b7d-4c55-9a3e-2d8f5b1e7c90"/>
+        </update>
+        <addNotNullConstraint tableName="notes" columnName="owner_id" columnDataType="UUID"/>
+        <addForeignKeyConstraint constraintName="fk_notes_owner"
+                                 baseTableName="notes" baseColumnNames="owner_id"
+                                 referencedTableName="users" referencedColumnNames="id"/>
+        <createIndex tableName="notes" indexName="idx_notes_owner_id">
+            <column name="owner_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="002-add-category-owner" author="notebloom">
+        <addColumn tableName="categories">
+            <column name="owner_id" type="UUID"/>
+        </addColumn>
+        <update tableName="categories">
+            <column name="owner_id" value="6f1c2a4e-0b7d-4c55-9a3e-2d8f5b1e7c90"/>
+        </update>
+        <addNotNullConstraint tableName="categories" columnName="owner_id" columnDataType="UUID"/>
+        <addForeignKeyConstraint constraintName="fk_categories_owner"
+                                 baseTableName="categories" baseColumnNames="owner_id"
+                                 referencedTableName="users" referencedColumnNames="id"/>
+        <createIndex tableName="categories" indexName="idx_categories_owner_id">
+            <column name="owner_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
