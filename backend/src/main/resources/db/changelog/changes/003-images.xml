@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Images inserted into notes. The bytes live in the database so a pg_dump backup
+        contains everything; notes reference them as /api/images/{id}.
+    -->
+
+    <changeSet id="003-create-images" author="notebloom">
+        <createTable tableName="images">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" primaryKeyName="images_pkey"/>
+            </column>
+            <column name="owner_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_images_owner"
+                             referencedTableName="users" referencedColumnNames="id"/>
+            </column>
+            <column name="content_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="data" type="BYTEA">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="images" indexName="idx_images_owner_id">
+            <column name="owner_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

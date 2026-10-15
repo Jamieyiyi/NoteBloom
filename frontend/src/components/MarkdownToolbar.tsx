@@ -13,10 +13,13 @@ import {
   type TextEdit,
 } from '../markdown/markdownCommands'
 import { applyEdit, readSelection } from '../markdown/applyEdit'
+import { ACCEPTED_IMAGE_TYPES } from '../api/imagesApi'
 
 interface MarkdownToolbarProps {
   textareaRef: RefObject<HTMLTextAreaElement | null>
   onChange: (value: string) => void
+  /** 從電腦選取的圖片：上傳後插入到游標位置 */
+  onUploadImages: (files: File[]) => void
 }
 
 const CODE_LANGUAGES = ['bash', 'java', 'javascript', 'typescript', 'json', 'sql', 'yaml', 'python', 'powershell', 'xml', 'dockerfile']
@@ -29,10 +32,11 @@ const CALLOUTS: readonly { marker: CalloutMarker; label: string }[] = [
   { marker: 'ERROR', label: '⊗ 錯誤' },
 ]
 
-type Popover = 'code' | 'table' | 'quote' | null
+type Popover = 'code' | 'table' | 'quote' | 'image' | null
 
-export function MarkdownToolbar({ textareaRef, onChange }: MarkdownToolbarProps) {
+export function MarkdownToolbar({ textareaRef, onChange, onUploadImages }: MarkdownToolbarProps) {
   const [popover, setPopover] = useState<Popover>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function run(command: (selection: Selection) => TextEdit) {
     const textarea = textareaRef.current
@@ -116,7 +120,43 @@ export function MarkdownToolbar({ textareaRef, onChange }: MarkdownToolbarProps)
           <TablePicker onPick={(rows, columns) => run((s) => insertTable(s, rows, columns))} />
         </PopoverButton>
         <ToolButton label="🔗" title="連結 (Ctrl+K)" onClick={() => run((s) => insertLink(s, false))} />
-        <ToolButton label="🖼" title="圖片" onClick={() => run((s) => insertLink(s, true))} />
+        <PopoverButton
+          label="🖼"
+          title="圖片（也可以直接貼上或拖曳圖片到編輯區）"
+          open={popover === 'image'}
+          onToggle={() => setPopover(popover === 'image' ? null : 'image')}
+          onClose={() => setPopover(null)}
+        >
+          <div className="md-popover-title">插入圖片</div>
+          <div className="md-callout-menu">
+            <button
+              type="button"
+              onClick={() => {
+                setPopover(null)
+                fileInputRef.current?.click()
+              }}
+            >
+              ⬆ 從電腦上傳…
+            </button>
+            <button type="button" onClick={() => run((s) => insertLink(s, true))}>
+              🔗 圖片網址
+            </button>
+          </div>
+          <div className="md-popover-hint">也可以 Ctrl+V 貼上或拖曳圖片</div>
+        </PopoverButton>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ACCEPTED_IMAGE_TYPES.join(',')}
+          multiple
+          hidden
+          onChange={(event) => {
+            const files = Array.from(event.target.files ?? [])
+            // Reset so picking the same file again still fires onChange
+            event.target.value = ''
+            if (files.length > 0) onUploadImages(files)
+          }}
+        />
         <ToolButton label="―" title="分隔線" onClick={() => run(insertHorizontalRule)} />
       </ToolGroup>
     </div>

@@ -174,3 +174,17 @@ export function insertLink({ value, start, end }: Selection, image: boolean): Te
     ? { start, end, text, selectionStart: urlStart, selectionEnd: urlStart + url.length }
     : { start, end, text, selectionStart: labelStart, selectionEnd: labelStart + label.length }
 }
+
+export interface ImageReference {
+  alt: string
+  url: string
+}
+
+/** 插入上傳好的圖片：每張自成一段（前後空一行），否則會跟前面的文字擠在同一段；游標停在最後一張後面。 */
+export function insertImages({ value, start, end }: Selection, images: ImageReference[]): TextEdit {
+  const blocks = images.map(({ alt, url }) => `![${alt.replace(/[[\]]/g, '')}](${url})`).join('\n\n')
+  const before = value.slice(0, start)
+  const leading = before === '' || before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n'
+  const text = `${leading}${blocks}\n\n`
+  return { start, end, text, selectionStart: start + text.length, selectionEnd: start + text.length }
+}

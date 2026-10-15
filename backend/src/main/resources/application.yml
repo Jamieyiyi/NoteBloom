@@ -14,6 +14,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  servlet:
+    multipart:
+      # Images inserted into notes; keep in sync with MAX_IMAGE_BYTES in frontend/src/api/imagesApi.ts
+      max-file-size: 10MB
+      max-request-size: 11MB
 
 server:
   port: 8080

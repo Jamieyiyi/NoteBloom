@@ -8,5 +8,6 @@
     <!-- Append new change files at the bottom; never edit a changeset that has already been applied. -->
     <include file="changes/001-init-schema.xml" relativeToChangelogFile="true"/>
     <include file="changes/002-users-and-ownership.xml" relativeToChangelogFile="true"/>
+    <include file="changes/003-images.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

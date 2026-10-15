@@ -1,12 +1,13 @@
-import { useRef, useState, type KeyboardEvent } from 'react'
+import { useRef, useState, type ClipboardEvent, type DragEvent, type KeyboardEvent } from 'react'
 import type { Note, NoteSummary } from '../types/note'
 import type { Category } from '../types/category'
 import type { AppTheme } from '../ui/useAppTheme'
 import { updateNote } from '../api/notesApi'
+import { MAX_IMAGE_BYTES, uploadImage } from '../api/imagesApi'
 import { toMarkdownContent } from '../content/legacyContent'
 import { handleMarkdownShortcut } from '../markdown/shortcuts'
 import { applyEdit, readSelection } from '../markdown/applyEdit'
-import { continueNumberedHeading } from '../markdown/markdownCommands'
+import { continueNumberedHeading, insertImages, type ImageReference } from '../markdown/markdownCommands'
 import { useStoredChoice } from '../ui/useStoredChoice'
 import { reportError, useNotify } from '../ui/notifications'
 import { buildCategoryTree, flattenWithPaths } from '../notes/categoryTree'
@@ -45,6 +46,7 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
   }))
   const [viewMode, setViewMode] = useStoredChoice<ViewMode>('notebloom-view-mode', VIEW_MODES, 'split')
   const [status, setStatus] = useState<'saved' | 'saving' | 'error'>('saved')
+  const [uploadingImages, setUploadingImages] = useState(0)
   const saveTimer = useRef<number | undefined>(undefined)
   // Autosave retries on every edit; announce a failure once, and the recovery once
   const saveFailed = useRef(false)
@@ -87,6 +89,46 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
 
   const changeContent = (content: string) => change({ content })
 
+  /** 上傳圖片後插入到游標位置；不支援或太大的檔案只提示，不影響其他張。 */
+  async function uploadImages(files: File[]) {
+    const images = files.filter((file) => file.type.startsWith('image/'))
+    const tooLarge = images.filter((file) => file.size > MAX_IMAGE_BYTES)
+    if (tooLarge.length > 0) notify.warning(`圖片不能超過 10 MB：${tooLarge.map((file) => file.name).join('、')}`)
+    const accepted = images.filter((file) => file.size <= MAX_IMAGE_BYTES)
+    if (accepted.length === 0) return
+
+    setUploadingImages((count) => count + accepted.length)
+    const uploaded: ImageReference[] = []
+    for (const file of accepted) {
+      try {
+        const { url } = await uploadImage(file)
+        uploaded.push({ alt: imageAltText(file.name), url })
+      } catch (err) {
+        reportError(notify, err, `圖片上傳失敗：${file.name}`)
+      } finally {
+        setUploadingImages((count) => count - 1)
+      }
+    }
+    const textarea = textareaRef.current
+    if (uploaded.length === 0 || !textarea) return
+    applyEdit(textarea, insertImages(readSelection(textarea), uploaded), changeContent)
+  }
+
+  function handlePaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const files = Array.from(event.clipboardData.files).filter((file) => file.type.startsWith('image/'))
+    if (files.length === 0) return
+    // A copied picture often comes with text/html as well; insert the image, not that markup
+    event.preventDefault()
+    void uploadImages(files)
+  }
+
+  function handleDrop(event: DragEvent<HTMLTextAreaElement>) {
+    const files = Array.from(event.dataTransfer.files).filter((file) => file.type.startsWith('image/'))
+    if (files.length === 0) return
+    event.preventDefault()
+    void uploadImages(files)
+  }
+
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     const textarea = event.currentTarget
     if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey) {
@@ -120,7 +162,13 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
           placeholder="Untitled"
         />
         <span className={status === 'error' ? 'save-status error' : 'save-status'}>
-          {status === 'saving' ? '儲存中…' : status === 'error' ? '儲存失敗' : '已儲存'}
+          {uploadingImages > 0
+            ? '圖片上傳中…'
+            : status === 'saving'
+              ? '儲存中…'
+              : status === 'error'
+                ? '儲存失敗'
+                : '已儲存'}
         </span>
         <select
           className="category-select"
@@ -153,7 +201,11 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
         </div>
       </div>
       <div className="note-editor-bar">
-        {viewMode !== 'preview' ? <MarkdownToolbar textareaRef={textareaRef} onChange={changeContent} /> : <span />}
+        {viewMode !== 'preview' ? (
+          <MarkdownToolbar textareaRef={textareaRef} onChange={changeContent} onUploadImages={(files) => void uploadImages(files)} />
+        ) : (
+          <span />
+        )}
         <ExportMenu markdown={draft.content} title={draft.title} themeId={theme} />
       </div>
       <div className={`note-editor-panes view-${viewMode}`}>
@@ -164,6 +216,8 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
             value={draft.content}
             onChange={(e) => changeContent(e.target.value)}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
+            onDrop={handleDrop}
             placeholder="# 用 Markdown 開始寫作…"
             spellCheck={false}
           />
@@ -172,6 +226,12 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
       </div>
     </div>
   )
+}
+
+/** 檔名當圖片說明；截圖貼上時檔名通常只是 image.png，就用「圖片」。 */
+function imageAltText(fileName: string): string {
+  const base = fileName.replace(/\.[^.]+$/, '').trim()
+  return !base || base.toLowerCase() === 'image' ? '圖片' : base
 }
 
 function resolveCategoryId(

@@ -6,6 +6,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -14,7 +15,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({NoteNotFoundException.class, CategoryNotFoundException.class, UserNotFoundException.class})
+    @ExceptionHandler({NoteNotFoundException.class, CategoryNotFoundException.class, UserNotFoundException.class,
+            ImageNotFoundException.class})
     public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
@@ -24,7 +26,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body(HttpStatus.CONFLICT, ex.getMessage()));
     }
 
-    @ExceptionHandler({InvalidCategoryHierarchyException.class, InvalidAccountOperationException.class})
+    @ExceptionHandler({InvalidCategoryHierarchyException.class, InvalidAccountOperationException.class,
+            InvalidImageException.class})
     public ResponseEntity<Map<String, Object>> handleInvalidRequest(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body(HttpStatus.BAD_REQUEST, ex.getMessage()));
     }
@@ -37,6 +40,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(LoginLockedException.class)
     public ResponseEntity<Map<String, Object>> handleLoginLocked(LoginLockedException ex) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(body(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage()));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleUploadTooLarge(MaxUploadSizeExceededException ex) {
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE)
+                .body(body(HttpStatus.CONTENT_TOO_LARGE, "圖片不能超過 10 MB"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
