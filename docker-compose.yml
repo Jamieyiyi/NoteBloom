@@ -7,9 +7,10 @@ services:
       POSTGRES_USER: notebloom
       POSTGRES_PASSWORD: notebloom
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - notebloom-postgres-data:/var/lib/postgresql/data
+      - ./deploy/postgres/init-schema.sql:/docker-entrypoint-initdb.d/init-schema.sql:ro
 
 volumes:
   notebloom-postgres-data:

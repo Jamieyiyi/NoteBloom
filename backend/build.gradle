@@ -28,6 +28,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
@@ -36,9 +37,33 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-// 把前端 build 結果（frontend/dist）一起包進 JAR，由 Spring Boot 內嵌 Tomcat 當靜態檔提供
-tasks.named('bootJar') {
-    from('../frontend/dist') {
-        into 'BOOT-INF/classes/static'
+// 把前端 build 結果（frontend/dist）一起包進 JAR，由 Spring Boot 內嵌 Tomcat 當靜態檔提供。
+// bootJar 會自動先跑 npm ci + npm run build；加 -PskipFrontend 則只打包後端（Docker image 用）。
+def frontendDir = file('../frontend')
+def npm = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
+
+tasks.register('npmInstall', Exec) {
+    workingDir = frontendDir
+    commandLine npm, 'ci'
+    inputs.file("${frontendDir}/package-lock.json")
+    outputs.dir("${frontendDir}/node_modules")
+}
+
+tasks.register('buildFrontend', Exec) {
+    dependsOn 'npmInstall'
+    workingDir = frontendDir
+    commandLine npm, 'run', 'build'
+    inputs.dir("${frontendDir}/src")
+    inputs.dir("${frontendDir}/public")
+    inputs.files("${frontendDir}/index.html", "${frontendDir}/package.json", "${frontendDir}/vite.config.ts")
+    outputs.dir("${frontendDir}/dist")
+}
+
+if (!project.hasProperty('skipFrontend')) {
+    tasks.named('bootJar') {
+        dependsOn 'buildFrontend'
+        from("${frontendDir}/dist") {
+            into 'BOOT-INF/classes/static'
+        }
     }
 }

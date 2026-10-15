@@ -1,0 +1,12 @@
+# NoteBloom 正式環境設定
+# install.ps1 會把這個檔案複製到安裝資料夾（預設 C:\notebloom\application.properties）。
+# 請在那邊填入真正的資料庫密碼；那份檔案不在 git 裡，不會被 commit。
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/notebloom?currentSchema=notebloom
+spring.datasource.username=notebloom
+spring.datasource.password=請改成你建立 notebloom 使用者時設定的密碼
+
+server.port=8080
+
+# Log 會寫到安裝資料夾底下的 logs\notebloom.log
+logging.file.name=logs/notebloom.log

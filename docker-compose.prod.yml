@@ -1,0 +1,51 @@
+# Production stack: PostgreSQL + Spring Boot backend + nginx frontend + Cloudflare Tunnel.
+# Usage: cp .env.example .env  (fill in values)  &&  docker compose -f docker-compose.prod.yml up -d --build
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: notebloom
+      POSTGRES_USER: notebloom
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    volumes:
+      - notebloom-postgres-data:/var/lib/postgresql/data
+      - ./deploy/postgres/init-schema.sql:/docker-entrypoint-initdb.d/init-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notebloom -d notebloom"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/notebloom?currentSchema=notebloom
+      DB_USERNAME: notebloom
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      CORS_ALLOWED_ORIGINS: https://${DOMAIN:-localhost}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      # Bound to localhost only; public traffic arrives through the tunnel.
+      - "127.0.0.1:8081:80"
+    depends_on:
+      - backend
+
+  cloudflared:
+    image: cloudflare/cloudflared:2025.9.1
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?set CLOUDFLARE_TUNNEL_TOKEN in .env}
+    depends_on:
+      - frontend
+
+volumes:
+  notebloom-postgres-data:

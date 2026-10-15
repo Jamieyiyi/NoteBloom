@@ -1,16 +1,16 @@
 package com.notebloom.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notebloom.dto.NoteRequest;
 import com.notebloom.dto.NoteResponse;
 import com.notebloom.exception.NoteNotFoundException;
 import com.notebloom.service.NoteService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.UUID;
