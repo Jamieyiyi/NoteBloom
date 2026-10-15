@@ -3,6 +3,8 @@ import { createUser, listUsers, resetPassword, updateUser, type UserUpdateInput 
 import type { User, UserRole } from '../types/user'
 import { MIN_PASSWORD_LENGTH } from './ChangePasswordDialog'
 import { Dialog } from './Dialog'
+import { Notice } from './Notice'
+import { errorMessage, reportError, useNotify } from '../ui/notifications'
 
 const ROLE_LABELS: Record<UserRole, string> = { ADMIN: '管理者', USER: '一般使用者' }
 
@@ -14,16 +16,15 @@ interface UserAdminDialogProps {
 /** Invitation-only sign-up: administrators create accounts here and hand out the initial password. */
 export function UserAdminDialog({ currentUserId, onClose }: UserAdminDialogProps) {
   const [users, setUsers] = useState<User[]>([])
-  const [error, setError] = useState<string | null>(null)
+  const notify = useNotify()
 
   useEffect(() => {
     listUsers()
       .then(setUsers)
-      .catch((err) => setError(err instanceof Error ? err.message : '載入失敗'))
-  }, [])
+      .catch((err) => reportError(notify, err, '載入帳號列表失敗'))
+  }, [notify])
 
   async function save(user: User, patch: Partial<UserUpdateInput>) {
-    setError(null)
     try {
       const updated = await updateUser(user.id, {
         displayName: user.displayName,
@@ -32,8 +33,9 @@ export function UserAdminDialog({ currentUserId, onClose }: UserAdminDialogProps
         ...patch,
       })
       setUsers((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
+      notify.success(describeUpdate(updated, patch))
     } catch (err) {
-      setError(err instanceof Error ? err.message : '儲存失敗')
+      reportError(notify, err, '儲存失敗')
     }
   }
 
@@ -41,12 +43,6 @@ export function UserAdminDialog({ currentUserId, onClose }: UserAdminDialogProps
     <Dialog title="帳號管理" wide onClose={onClose}>
       <div className="dialog-body">
         <NewUserForm onCreated={(user) => setUsers((prev) => [...prev, user])} />
-
-        {error && (
-          <p className="form-error" role="alert">
-            {error}
-          </p>
-        )}
 
         <div className="user-table-wrap">
           <table className="user-table">
@@ -74,6 +70,13 @@ export function UserAdminDialog({ currentUserId, onClose }: UserAdminDialogProps
       </div>
     </Dialog>
   )
+}
+
+function describeUpdate(user: User, patch: Partial<UserUpdateInput>): string {
+  if (patch.enabled === false) return `已停用 @${user.username}，對方已被登出`
+  if (patch.enabled === true) return `已啟用 @${user.username}`
+  if (patch.role) return `已將 @${user.username} 設為${ROLE_LABELS[patch.role]}`
+  return `已更新 @${user.username} 的顯示名稱`
 }
 
 interface UserRowProps {
@@ -160,7 +163,7 @@ function ResetPasswordForm({ userId, onDone }: { userId: string; onDone: () => v
       setSaved(true)
       setMessage('已重設，請把新密碼交給對方（對方已被登出）')
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : '重設失敗')
+      setMessage(errorMessage(err, '重設失敗'))
     }
   }
 
@@ -190,7 +193,7 @@ function ResetPasswordForm({ userId, onDone }: { userId: string; onDone: () => v
           </>
         )}
       </div>
-      {message && <div className={saved ? 'user-reset-note' : 'user-reset-note error'}>{message}</div>}
+      {message && <Notice tone={saved ? 'success' : 'error'}>{message}</Notice>}
     </div>
   )
 }
@@ -216,7 +219,7 @@ function NewUserForm({ onCreated }: { onCreated: (user: User) => void }) {
       setPassword(generatePassword())
       setRole('USER')
     } catch (err) {
-      setMessage({ text: err instanceof Error ? err.message : '建立失敗', ok: false })
+      setMessage({ text: errorMessage(err, '建立失敗'), ok: false })
     } finally {
       setSubmitting(false)
     }
@@ -272,7 +275,7 @@ function NewUserForm({ onCreated }: { onCreated: (user: User) => void }) {
         </label>
       </div>
       <div className="new-user-footer">
-        {message && <span className={message.ok ? 'form-success' : 'form-error'}>{message.text}</span>}
+        {message && <Notice tone={message.ok ? 'success' : 'error'}>{message.text}</Notice>}
         <button type="submit" className="primary-button" disabled={submitting}>
           {submitting ? '建立中…' : '建立帳號'}
         </button>

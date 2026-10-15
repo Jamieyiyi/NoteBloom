@@ -375,12 +375,6 @@ select {
   outline: none;
 }
 
-.category-input-error {
-  margin: 4px 2px 0;
-  font-size: 12px;
-  color: var(--app-danger);
-}
-
 /* ---------- 主畫面 ---------- */
 .app-main {
   flex: 1;
@@ -431,6 +425,11 @@ select {
   font-size: 13px;
   color: var(--app-muted);
   white-space: nowrap;
+}
+
+.save-status.error {
+  font-weight: 600;
+  color: var(--app-danger);
 }
 
 .category-select {
@@ -614,7 +613,8 @@ select {
 }
 
 .md-callout-menu .md-callout-warn {
-  color: var(--app-warn);
+  /* Yellow alone is too faint as text on a light background */
+  color: color-mix(in srgb, var(--app-warn) 70%, var(--app-text));
 }
 
 .md-callout-menu .md-callout-error {
@@ -771,18 +771,6 @@ select {
 .user-inline-input:focus {
   outline: 2px solid var(--app-accent-soft);
   border-color: var(--app-accent);
-}
-
-.form-error {
-  margin: 0;
-  font-size: 13px;
-  color: var(--app-danger);
-}
-
-.form-success {
-  margin: 0;
-  font-size: 13px;
-  color: var(--app-text);
 }
 
 .primary-button,
@@ -1088,12 +1076,148 @@ select {
   border-color: var(--app-border-strong);
 }
 
-.user-reset-note {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--app-muted);
+/* ---------- Messages: a flower coloured by tone (info blue, success green, warning yellow, error red) ---------- */
+.toast-info,
+.notice-info {
+  --tone: var(--app-info);
 }
 
-.user-reset-note.error {
-  color: var(--app-danger);
+.toast-success,
+.notice-success {
+  --tone: var(--app-success);
+}
+
+.toast-warning,
+.notice-warning {
+  --tone: var(--app-warn);
+}
+
+.toast-error,
+.notice-error {
+  --tone: var(--app-danger);
+}
+
+.message-flower {
+  flex: none;
+}
+
+/* Toasts: stacked in the bottom-right corner, newest at the bottom */
+.toast-stack {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: min(380px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 10px 11px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--tone) 8%, var(--app-surface));
+  border: 1px solid color-mix(in srgb, var(--tone) 35%, var(--app-border));
+  border-left: 4px solid var(--tone);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  pointer-events: auto;
+  animation: toast-in 0.18s ease-out;
+}
+
+.toast .message-flower {
+  margin-top: 1px;
+}
+
+.toast-text {
+  flex: 1;
+  word-break: break-word;
+}
+
+.toast-close {
+  flex: none;
+  padding: 0 4px;
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--app-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.toast-close:hover {
+  color: var(--app-text);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
+
+/* Inline notices inside forms */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  /* Tinted text stays readable: pure yellow on white would be too faint */
+  color: color-mix(in srgb, var(--tone) 65%, var(--app-text));
+}
+
+.notice .message-flower {
+  margin-top: 1px;
+}
+
+.notice > span {
+  word-break: break-word;
+}
+
+.category-input-wrap .notice {
+  margin: 4px 2px 0;
+  font-size: 12px;
+}
+
+/* Confirmation dialog */
+.confirm-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.confirm-message p {
+  margin: 2px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.danger-button {
+  padding: 9px 16px;
+  font-weight: 600;
+  color: var(--app-accent-text);
+  background: var(--app-danger);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.danger-button:hover {
+  filter: brightness(1.08);
 }

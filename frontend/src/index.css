@@ -18,7 +18,8 @@
   --app-hover: rgba(0, 0, 0, 0.04);
   --app-danger: #d64545;
   --app-info: #2b5fd9;
-  --app-warn: #b7791f;
+  --app-warn: #e6b422;
+  --app-success: #3a9d63;
 
   --petal: #f08ba5;
   --petal-center: #fff5f8;
@@ -45,7 +46,8 @@
     --app-hover: rgba(255, 255, 255, 0.05);
     --app-danger: #ff7b8a;
     --app-info: #82aaff;
-    --app-warn: #e5c07b;
+    --app-warn: #f2c94c;
+    --app-success: #8fd0a8;
 
     --petal: #f08ba5;
     --petal-center: #fff5f8;
@@ -72,7 +74,8 @@
   --app-hover: rgba(255, 255, 255, 0.05);
   --app-danger: #ff7b8a;
   --app-info: #82aaff;
-  --app-warn: #e5c07b;
+  --app-warn: #f2c94c;
+  --app-success: #8fd0a8;
 
   --petal: #f08ba5;
   --petal-center: #fff5f8;

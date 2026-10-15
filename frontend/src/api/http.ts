@@ -32,9 +32,13 @@ export function apiFetch(url: string, init: RequestInit = {}): Promise<Response>
 
 export async function handle<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    if (response.status === 401) unauthorizedListener?.()
-    const body = await response.json().catch(() => ({ message: response.statusText }))
-    throw new ApiError(response.status, body.message ?? `Request failed: ${response.status}`)
+    // A 403 can also mean the session (and its CSRF token) is gone, e.g. after logging out in another tab
+    const sessionEnded =
+      response.status === 401 || (response.status === 403 && (await apiFetch('/api/auth/me')).status === 401)
+    if (sessionEnded) unauthorizedListener?.()
+    const body = await response.json().catch(() => ({}))
+    // Empty when the server sent no message; callers then show their own wording
+    throw new ApiError(sessionEnded ? 401 : response.status, typeof body.message === 'string' ? body.message : '')
   }
   if (response.status === 204) {
     return undefined as T

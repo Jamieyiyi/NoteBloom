@@ -6,6 +6,8 @@ import { buildCategoryTree, subtreeIds, type CategoryNode } from '../notes/categ
 import logoOnDark from '../assets/logo-on-dark.png'
 import logoOnLight from '../assets/logo-on-light.png'
 import { FlowerIcon, LeafIcon, SproutIcon } from './GardenIcons'
+import { Notice } from './Notice'
+import { useNotify } from '../ui/notifications'
 
 interface NoteSidebarProps {
   notes: NoteSummary[]
@@ -131,13 +133,14 @@ function CategoryBranch({ node, context }: { node: CategoryNode; context: Garden
   const { onCreateCategory, onRenameCategory, onDeleteCategory } = context
   const [editing, setEditing] = useState(false)
   const [addingChild, setAddingChild] = useState(false)
+  const { confirm } = useNotify()
 
   const ownNotes = notesByCategory.get(category.id) ?? []
   const total = subtreeIds(node).reduce((sum, id) => sum + (notesByCategory.get(id)?.length ?? 0), 0)
   const collapsed = isCollapsed(category.id)
   const canAddChild = depth < MAX_CATEGORY_DEPTH
 
-  function confirmDelete() {
+  async function confirmDelete() {
     const destination = category.parentId ? `「${categoryNames.get(category.parentId) ?? '上一層'}」` : '「未分類」與最上層'
     const moving = [
       children.length > 0 ? `${children.length} 個子分類` : null,
@@ -145,9 +148,10 @@ function CategoryBranch({ node, context }: { node: CategoryNode; context: Garden
     ].filter(Boolean)
     const message =
       moving.length > 0
-        ? `刪除分類「${category.name}」？裡面的 ${moving.join('和 ')}會移到${destination}，不會被刪除。`
-        : `刪除分類「${category.name}」？`
-    if (window.confirm(message)) onDeleteCategory(category.id)
+        ? `確定要刪除分類「${category.name}」嗎？裡面的 ${moving.join('和 ')}會移到${destination}，不會被刪除。`
+        : `確定要刪除分類「${category.name}」嗎？`
+    const confirmed = await confirm({ title: '刪除分類', message, confirmLabel: '刪除', tone: 'warning' })
+    if (confirmed) onDeleteCategory(category.id)
   }
 
   return (
@@ -255,6 +259,7 @@ function UncategorizedBranch({ context }: { context: GardenContext }) {
 
 function NoteLeaves({ notes, context, showEmpty }: { notes: NoteSummary[]; context: GardenContext; showEmpty: boolean }) {
   const { selectedId, onSelect, onDelete } = context
+  const { confirm } = useNotify()
 
   if (notes.length === 0) {
     return showEmpty ? <li className="garden-node garden-empty">還沒有筆記</li> : null
@@ -275,8 +280,14 @@ function NoteLeaves({ notes, context, showEmpty }: { notes: NoteSummary[]; conte
                 <button
                   type="button"
                   title="刪除筆記"
-                  onClick={() => {
-                    if (window.confirm(`確定要刪除「${note.title || 'Untitled'}」嗎？`)) onDelete(note.id)
+                  onClick={async () => {
+                    const confirmed = await confirm({
+                      title: '刪除筆記',
+                      message: `確定要刪除「${note.title || 'Untitled'}」嗎？刪除後無法復原。`,
+                      confirmLabel: '刪除',
+                      tone: 'warning',
+                    })
+                    if (confirmed) onDelete(note.id)
                   }}
                 >
                   ×
@@ -341,7 +352,7 @@ function CategoryNameInput({ initial, placeholder = '分類名稱', onSubmit, on
           if (!error) submit()
         }}
       />
-      {error && <div className="category-input-error">{error}</div>}
+      {error && <Notice tone="error">{error}</Notice>}
     </div>
   )
 }

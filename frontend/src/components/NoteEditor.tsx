@@ -8,6 +8,7 @@ import { handleMarkdownShortcut } from '../markdown/shortcuts'
 import { applyEdit, readSelection } from '../markdown/applyEdit'
 import { continueNumberedHeading } from '../markdown/markdownCommands'
 import { useStoredChoice } from '../ui/useStoredChoice'
+import { reportError, useNotify } from '../ui/notifications'
 import { buildCategoryTree, flattenWithPaths } from '../notes/categoryTree'
 import { ExportMenu } from './ExportMenu'
 import { MarkdownPreview } from './MarkdownPreview'
@@ -45,6 +46,9 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
   const [viewMode, setViewMode] = useStoredChoice<ViewMode>('notebloom-view-mode', VIEW_MODES, 'split')
   const [status, setStatus] = useState<'saved' | 'saving' | 'error'>('saved')
   const saveTimer = useRef<number | undefined>(undefined)
+  // Autosave retries on every edit; announce a failure once, and the recovery once
+  const saveFailed = useRef(false)
+  const notify = useNotify()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // 分類被刪除後，後端已把筆記移到上一層；這裡跟著換，下次存檔才不會送出已刪除的分類
@@ -60,6 +64,10 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
       try {
         const saved = await updateNote(note.id, { ...next, title: next.title || 'Untitled' })
         setStatus('saved')
+        if (saveFailed.current) {
+          saveFailed.current = false
+          notify.success('筆記已重新儲存')
+        }
         onSaved({
           id: saved.id,
           title: saved.title,
@@ -68,7 +76,10 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
           updatedAt: saved.updatedAt,
         })
       } catch (err) {
-        console.error('Failed to save note', err)
+        if (!saveFailed.current) {
+          saveFailed.current = true
+          reportError(notify, err, '筆記儲存失敗，會在你繼續編輯時自動重試')
+        }
         setStatus('error')
       }
     }, delay)
@@ -108,7 +119,7 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
           onChange={(e) => change({ title: e.target.value })}
           placeholder="Untitled"
         />
-        <span className="save-status">
+        <span className={status === 'error' ? 'save-status error' : 'save-status'}>
           {status === 'saving' ? '儲存中…' : status === 'error' ? '儲存失敗' : '已儲存'}
         </span>
         <select

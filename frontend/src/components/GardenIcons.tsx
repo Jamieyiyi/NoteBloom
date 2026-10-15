@@ -21,6 +21,28 @@ export function FlowerIcon({ size = 24 }: { size?: number }) {
   )
 }
 
+export type MessageTone = 'info' | 'success' | 'warning' | 'error'
+
+const TONE_COLORS: Record<MessageTone, string> = {
+  info: 'var(--app-info)',
+  success: 'var(--app-success)',
+  warning: 'var(--app-warn)',
+  error: 'var(--app-danger)',
+}
+
+/** The garden flower recoloured for messages: blue info, green success, yellow warning, red error. */
+export function MessageFlower({ tone, size = 18 }: { tone: MessageTone; size?: number }) {
+  return (
+    <svg className="message-flower" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      {PETALS.map(([cx, cy]) => (
+        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={4.6} fill={TONE_COLORS[tone]} />
+      ))}
+      <ellipse cx={6.2} cy={9.3} rx={1.1} ry={0.7} fill="#fff" opacity={0.55} transform="rotate(-35 6.2 9.3)" />
+      <circle cx={12} cy={12} r={3.1} fill="#fffaf2" />
+    </svg>
+  )
+}
+
 interface LeafIconProps {
   size?: number
   tone?: 'fresh' | 'dry'

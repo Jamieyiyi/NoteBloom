@@ -9,6 +9,7 @@ import { BloomToggle } from './BloomToggle'
 import type { AppTheme } from '../ui/useAppTheme'
 import type { User } from '../types/user'
 import { AccountMenu } from './AccountMenu'
+import { reportError, useNotify } from '../ui/notifications'
 
 interface NotebookProps {
   user: User
@@ -27,6 +28,7 @@ export function Notebook({ user, theme, onToggleTheme, onLogout }: NotebookProps
   const [loading, setLoading] = useState(true)
   // 已刪除分類 → 它的上一層；讓編輯中的筆記在下次存檔時跟著移過去
   const [categoryRedirects, setCategoryRedirects] = useState<Record<string, string | null>>({})
+  const notify = useNotify()
 
   useEffect(() => {
     Promise.all([listNotes(), listCategories()])
@@ -35,32 +37,45 @@ export function Notebook({ user, theme, onToggleTheme, onLogout }: NotebookProps
         setCategories(categoryList)
         if (noteList.length > 0) setSelectedId(noteList[0].id)
       })
-      .catch(console.error)
+      .catch((err) => reportError(notify, err, '載入筆記失敗，請重新整理頁面'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [notify])
 
   useEffect(() => {
     if (!selectedId) {
       setSelectedNote(null)
       return
     }
-    getNote(selectedId).then(setSelectedNote).catch(console.error)
-  }, [selectedId])
+    getNote(selectedId)
+      .then(setSelectedNote)
+      .catch((err) => reportError(notify, err, '開啟筆記失敗'))
+  }, [selectedId, notify])
 
   async function handleCreate() {
     // 新筆記放在目前選的分類裡
     const categoryId = filter === 'all' || filter === 'uncategorized' ? null : filter
-    const created = await createNote({ title: 'Untitled', content: '', categoryId })
-    setNotes((prev) => [toSummary(created), ...prev])
-    setSelectedId(created.id)
+    try {
+      const created = await createNote({ title: 'Untitled', content: '', categoryId })
+      setNotes((prev) => [toSummary(created), ...prev])
+      setSelectedId(created.id)
+    } catch (err) {
+      reportError(notify, err, '新增筆記失敗')
+    }
   }
 
   async function handleDelete(id: string) {
-    await deleteNote(id)
+    const title = notes.find((note) => note.id === id)?.title || 'Untitled'
+    try {
+      await deleteNote(id)
+    } catch (err) {
+      reportError(notify, err, '刪除筆記失敗')
+      return
+    }
     setNotes((prev) => prev.filter((note) => note.id !== id))
     if (selectedId === id) {
       setSelectedId(null)
     }
+    notify.success(`已刪除「${title}」`)
   }
 
   // 點了某篇筆記，之後新增的筆記就放到同一個分類
@@ -87,8 +102,14 @@ export function Notebook({ user, theme, onToggleTheme, onLogout }: NotebookProps
 
   // 後端會把子分類和筆記都往上移一層；這裡同步本地狀態
   async function handleDeleteCategory(id: string) {
-    const parentId = categories.find((category) => category.id === id)?.parentId ?? null
-    await deleteCategory(id)
+    const deleted = categories.find((category) => category.id === id)
+    const parentId = deleted?.parentId ?? null
+    try {
+      await deleteCategory(id)
+    } catch (err) {
+      reportError(notify, err, '刪除分類失敗')
+      return
+    }
     setCategories((prev) =>
       prev
         .filter((category) => category.id !== id)
@@ -97,6 +118,7 @@ export function Notebook({ user, theme, onToggleTheme, onLogout }: NotebookProps
     setNotes((prev) => prev.map((note) => (note.categoryId === id ? { ...note, categoryId: parentId } : note)))
     setCategoryRedirects((prev) => ({ ...prev, [id]: parentId }))
     if (filter === id) setFilter(parentId ?? 'all')
+    notify.success(`已刪除分類「${deleted?.name ?? ''}」`)
   }
 
   return (

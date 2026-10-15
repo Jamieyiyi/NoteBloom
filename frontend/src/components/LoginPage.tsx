@@ -1,10 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { login } from '../api/authApi'
+import { ApiError } from '../api/http'
 import type { User } from '../types/user'
 import type { AppTheme } from '../ui/useAppTheme'
+import { errorMessage } from '../ui/notifications'
 import logoOnDark from '../assets/logo-on-dark.png'
 import logoOnLight from '../assets/logo-on-light.png'
 import { BloomToggle } from './BloomToggle'
+import { Notice } from './Notice'
+import type { MessageTone } from './GardenIcons'
 
 interface LoginPageProps {
   theme: AppTheme
@@ -15,7 +19,7 @@ interface LoginPageProps {
 export function LoginPage({ theme, onToggleTheme, onLoggedIn }: LoginPageProps) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<{ text: string; tone: MessageTone } | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(event: FormEvent) {
@@ -25,7 +29,9 @@ export function LoginPage({ theme, onToggleTheme, onLoggedIn }: LoginPageProps) 
     try {
       onLoggedIn(await login(username.trim(), password))
     } catch (err) {
-      setError(err instanceof Error ? err.message : '登入失敗')
+      // 429 means temporarily locked after too many failures: a warning, not a wrong password
+      const tone = err instanceof ApiError && err.status === 429 ? 'warning' : 'error'
+      setError({ text: errorMessage(err, '無法連線到伺服器，請稍後再試'), tone })
       setPassword('')
     } finally {
       setSubmitting(false)
@@ -61,11 +67,7 @@ export function LoginPage({ theme, onToggleTheme, onLoggedIn }: LoginPageProps) 
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        {error && (
-          <p className="form-error" role="alert">
-            {error}
-          </p>
-        )}
+        {error && <Notice tone={error.tone}>{error.text}</Notice>}
         <button type="submit" className="primary-button" disabled={submitting}>
           {submitting ? '登入中…' : '登入'}
         </button>

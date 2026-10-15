@@ -15,8 +15,9 @@ export function Dialog({ title, onClose, wide = false, children }: DialogProps) 
     const dialog = ref.current
     if (!dialog || dialog.open) return
     dialog.showModal()
-    // showModal() focuses the first focusable element (the close button); start in the first field instead
-    dialog.querySelector<HTMLElement>('input, select, textarea')?.focus()
+    // showModal() focuses the first focusable element (the close button); start in the first field instead,
+    // or on an element marked data-autofocus (e.g. the safe choice of a confirmation)
+    dialog.querySelector<HTMLElement>('[data-autofocus], input, select, textarea')?.focus()
   }, [])
 
   return (
