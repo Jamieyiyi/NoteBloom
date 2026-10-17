@@ -1221,3 +1221,41 @@ select {
 .danger-button:hover {
   filter: brightness(1.08);
 }
+
+/* ---------- LINE Login ---------- */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--app-muted);
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--app-border);
+}
+
+/* LINE's brand green; white text keeps the button recognisable in both themes */
+.line-login-button {
+  padding: 9px 16px;
+  font-weight: 600;
+  color: #fff;
+  background: #06c755;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.line-login-button:hover {
+  filter: brightness(0.95);
+}
+
+.account-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

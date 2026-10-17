@@ -7,6 +7,8 @@ import com.notebloom.exception.LoginLockedException;
 import com.notebloom.model.UserRole;
 import com.notebloom.security.AccountUserDetailsService;
 import com.notebloom.security.AuthenticatedUser;
+import com.notebloom.security.SessionLogin;
+import com.notebloom.service.LineLoginService;
 import com.notebloom.service.LoginAttemptService;
 import com.notebloom.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({AuthController.class, UserController.class})
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, SessionLogin.class})
 class AuthControllerTest {
 
     private static final UUID USER_ID = UUID.randomUUID();
@@ -63,13 +65,16 @@ class AuthControllerTest {
     @MockitoBean
     private UserService userService;
 
+    @MockitoBean
+    private LineLoginService lineLoginService;
+
     @BeforeEach
     void setUp() {
         when(userDetailsService.loadUserByUsername("alice")).thenReturn(new AuthenticatedUser(
                 USER_ID, "alice", "Alice", UserRole.USER, passwordEncoder.encode(PASSWORD), true));
         when(userDetailsService.loadUserByUsername("nobody")).thenThrow(new UsernameNotFoundException("Unknown user"));
         when(userService.get(USER_ID)).thenReturn(
-                new UserResponse(USER_ID, "alice", "Alice", UserRole.USER, true, Instant.now()));
+                new UserResponse(USER_ID, "alice", "Alice", UserRole.USER, true, false, Instant.now()));
     }
 
     @Test

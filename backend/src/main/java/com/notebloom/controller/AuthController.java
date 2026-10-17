@@ -1,9 +1,12 @@
 package com.notebloom.controller;
 
+import com.notebloom.dto.AuthOptionsResponse;
 import com.notebloom.dto.ChangePasswordRequest;
 import com.notebloom.dto.LoginRequest;
 import com.notebloom.dto.UserResponse;
 import com.notebloom.security.AuthenticatedUser;
+import com.notebloom.security.SessionLogin;
+import com.notebloom.service.LineLoginService;
 import com.notebloom.service.LoginAttemptService;
 import com.notebloom.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,11 +19,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,23 +34,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-    private final SecurityContextRepository securityContextRepository;
-    private final SessionRegistry sessionRegistry;
+    private final SessionLogin sessionLogin;
     private final LoginAttemptService loginAttemptService;
     private final UserService userService;
-    private final SecurityContextHolderStrategy securityContextHolderStrategy =
-            SecurityContextHolder.getContextHolderStrategy();
+    private final LineLoginService lineLoginService;
 
     public AuthController(AuthenticationManager authenticationManager,
-                          SecurityContextRepository securityContextRepository,
-                          SessionRegistry sessionRegistry,
+                          SessionLogin sessionLogin,
                           LoginAttemptService loginAttemptService,
-                          UserService userService) {
+                          UserService userService,
+                          LineLoginService lineLoginService) {
         this.authenticationManager = authenticationManager;
-        this.securityContextRepository = securityContextRepository;
-        this.sessionRegistry = sessionRegistry;
+        this.sessionLogin = sessionLogin;
         this.loginAttemptService = loginAttemptService;
         this.userService = userService;
+        this.lineLoginService = lineLoginService;
+    }
+
+    /** Public: which login methods the login page should offer. */
+    @GetMapping("/options")
+    public AuthOptionsResponse options() {
+        return new AuthOptionsResponse(lineLoginService.isEnabled());
     }
 
     @PostMapping("/login")
@@ -71,20 +73,8 @@ public class AuthController {
         }
         loginAttemptService.recordSuccess(request.username());
 
-        AuthenticatedUser user = ((AuthenticatedUser) authentication.getPrincipal()).withoutPassword();
-        Authentication sessionAuthentication =
-                UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities());
-
-        // A fresh session id on login prevents session fixation
-        if (httpRequest.getSession(false) != null) {
-            httpRequest.changeSessionId();
-        }
-        SecurityContext context = securityContextHolderStrategy.createEmptyContext();
-        context.setAuthentication(sessionAuthentication);
-        securityContextHolderStrategy.setContext(context);
-        securityContextRepository.saveContext(context, httpRequest, httpResponse);
-        sessionRegistry.registerNewSession(httpRequest.getSession().getId(), user);
-
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        sessionLogin.logIn(user, httpRequest, httpResponse);
         return userService.get(user.id());
     }
 

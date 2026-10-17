@@ -6,5 +6,7 @@ export interface User {
   displayName: string
   role: UserRole
   enabled: boolean
+  /** A LINE account is bound and can be used to log in */
+  lineLinked: boolean
   createdAt: string
 }

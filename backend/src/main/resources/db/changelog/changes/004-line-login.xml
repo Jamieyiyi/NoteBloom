@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        LINE Login: an account can bind one LINE account and then log in with it.
+        Accounts are still created by administrators only; an unbound LINE account cannot log in.
+    -->
+
+    <changeSet id="004-add-user-line-id" author="notebloom">
+        <addColumn tableName="users">
+            <!-- LINE user ID (U + 32 hex chars) of the bound LINE account; null when none is bound -->
+            <column name="line_user_id" type="VARCHAR(64)">
+                <constraints unique="true" uniqueConstraintName="uk_users_line_user_id"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

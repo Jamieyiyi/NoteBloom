@@ -110,6 +110,37 @@ NoteBloom 已經有自己的帳號密碼登入，Access 不再是必要的。保
 
 設定 → 系統 → 電源 → 接上電源時進入睡眠：**永不**。
 
+## 8. LINE 登入（選用）
+
+帳號一樣只有管理者能建立；LINE 只是多一種登入方式。每個人先用帳號密碼登入，到左下角「**綁定 LINE**」，之後就能在登入頁按「**使用 LINE 登入**」。沒綁定過的 LINE 會被擋下來。
+
+### 建立 LINE Login channel
+
+1. 用自己的 LINE 帳號登入 [LINE Developers Console](https://developers.line.biz/console/)。
+2. **Create a new provider**（名稱例如 `NoteBloom`）→ **Create a LINE Login channel**：
+   - Region：台灣；App types：勾 **Web app**；其他必填欄位照實填寫。
+3. **Basic settings** 分頁：記下 **Channel ID** 和 **Channel secret**。
+4. **LINE Login** 分頁 → **Callback URL**，每行一個：
+   ```
+   https://funtoo.cc/api/auth/line/callback
+   http://localhost:8080/api/auth/line/callback
+   ```
+5. channel 狀態是 **Developing** 時只有 channel 的管理者／測試者能登入；要給其他人用，到頁面上方把狀態改成 **Published**。
+
+### 設定 NoteBloom
+
+在 `C:\notebloom\application.properties` 加上（直接從 LINE Developers 複製，只會有英數字）：
+
+```properties
+notebloom.line.channel-id=你的 Channel ID
+notebloom.line.channel-secret=你的 Channel secret
+```
+
+重新啟動 NoteBloom（工作排程器 → NoteBloom → 結束 → 執行）後，登入頁就會出現綠色的「使用 LINE 登入」。
+
+- 請用 Callback URL 裡登記過的網址開網站：從 `https://funtoo.cc` 開始的登入要回到 `https://funtoo.cc`，從 `localhost` 開始就回到 `localhost`，混用會顯示「LINE 登入已逾時」。
+- NoteBloom 只向 LINE 要求 `profile` 權限，用來取得 LINE 使用者 ID；不會拿到 email 或傳訊息。
+
 ## 備份
 
 ```powershell

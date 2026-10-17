@@ -12,6 +12,8 @@ public record UserResponse(
         String displayName,
         UserRole role,
         boolean enabled,
+        /** Whether a LINE account is bound; the LINE user ID itself is never sent to the browser. */
+        boolean lineLinked,
         Instant createdAt
 ) {
     public static UserResponse from(UserModel user) {
@@ -21,6 +23,7 @@ public record UserResponse(
                 user.getDisplayName(),
                 user.getRole(),
                 user.isEnabled(),
+                user.getLineUserId() != null,
                 user.getCreatedAt()
         );
     }

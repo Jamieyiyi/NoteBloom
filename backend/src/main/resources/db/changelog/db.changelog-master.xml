@@ -9,5 +9,6 @@
     <include file="changes/001-init-schema.xml" relativeToChangelogFile="true"/>
     <include file="changes/002-users-and-ownership.xml" relativeToChangelogFile="true"/>
     <include file="changes/003-images.xml" relativeToChangelogFile="true"/>
+    <include file="changes/004-line-login.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

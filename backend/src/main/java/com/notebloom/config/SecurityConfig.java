@@ -27,7 +27,8 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 /**
  * Session-cookie authentication for the single-page app.
  * <ul>
- *   <li>{@code POST /api/auth/login} is the only API call allowed without a session</li>
+ *   <li>password login, the login options and LINE Login's start / callback are the only API calls allowed
+ *       without a session</li>
  *   <li>{@code /api/admin/**} requires the ADMIN role</li>
  *   <li>everything else under {@code /api} requires a logged-in account</li>
  *   <li>non-API paths serve the front-end bundle and stay public</li>
@@ -52,6 +53,9 @@ public class SecurityConfig {
                         .expiredSessionStrategy(event -> event.getResponse().sendError(HttpStatus.UNAUTHORIZED.value())))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        // Login page options and the two ends of LINE Login run before anyone is logged in
+                        .requestMatchers(HttpMethod.GET, "/api/auth/options", "/api/auth/line/login",
+                                "/api/auth/line/callback").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())

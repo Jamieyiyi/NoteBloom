@@ -43,6 +43,10 @@ public class UserModel {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    /** LINE user ID of the bound LINE account, used for LINE Login; null when none is bound. */
+    @Column(name = "line_user_id", unique = true, length = 64)
+    private String lineUserId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

@@ -16,10 +16,11 @@ interface NotebookProps {
   theme: AppTheme
   onToggleTheme: () => void
   onLogout: () => void
+  onUserChange: (user: User) => void
 }
 
 /** The note-taking workspace of one logged-in account. */
-export function Notebook({ user, theme, onToggleTheme, onLogout }: NotebookProps) {
+export function Notebook({ user, theme, onToggleTheme, onLogout, onUserChange }: NotebookProps) {
   const [notes, setNotes] = useState<NoteSummary[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [filter, setFilter] = useState<CategoryFilter>('all')
@@ -136,7 +137,7 @@ export function Notebook({ user, theme, onToggleTheme, onLogout }: NotebookProps
         onCreateCategory={handleCreateCategory}
         onRenameCategory={handleRenameCategory}
         onDeleteCategory={handleDeleteCategory}
-        footer={<AccountMenu user={user} onLogout={onLogout} />}
+        footer={<AccountMenu user={user} onLogout={onLogout} onUserChange={onUserChange} />}
       />
       <main className="app-main">
         <div className="app-theme-toggle">

@@ -19,3 +19,8 @@ notebloom.cors.allowed-origins=https://funtoo.cc,https://www.funtoo.cc
 #notebloom.bootstrap.admin-username=你的登入帳號（英數字）
 #notebloom.bootstrap.admin-display-name=顯示名稱
 #notebloom.bootstrap.admin-password=至少 8 個字元的密碼
+
+# LINE 登入（選用）：LINE Developers 的 LINE Login channel 的 Channel ID / Channel secret。
+# 兩行都填好並重新啟動後，登入頁才會出現「使用 LINE 登入」；值只能是英數字，請直接從 LINE Developers 複製貼上。
+#notebloom.line.channel-id=1234567890
+#notebloom.line.channel-secret=paste-channel-secret-here

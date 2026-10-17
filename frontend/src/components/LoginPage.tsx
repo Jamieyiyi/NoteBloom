@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react'
-import { login } from '../api/authApi'
+import { useEffect, useState, type FormEvent } from 'react'
+import { fetchAuthOptions, login, startLineLogin } from '../api/authApi'
 import { ApiError } from '../api/http'
 import type { User } from '../types/user'
 import type { AppTheme } from '../ui/useAppTheme'
@@ -21,6 +21,14 @@ export function LoginPage({ theme, onToggleTheme, onLoggedIn }: LoginPageProps) 
   const [password, setPassword] = useState('')
   const [error, setError] = useState<{ text: string; tone: MessageTone } | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [lineLoginEnabled, setLineLoginEnabled] = useState(false)
+
+  useEffect(() => {
+    fetchAuthOptions()
+      .then((options) => setLineLoginEnabled(options.lineLoginEnabled))
+      // Without the options the password form still works; just leave the LINE button out
+      .catch(() => setLineLoginEnabled(false))
+  }, [])
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -71,7 +79,19 @@ export function LoginPage({ theme, onToggleTheme, onLoggedIn }: LoginPageProps) 
         <button type="submit" className="primary-button" disabled={submitting}>
           {submitting ? '登入中…' : '登入'}
         </button>
-        <p className="login-hint">帳號由管理者建立，忘記密碼請聯絡管理者重設。</p>
+        {lineLoginEnabled && (
+          <>
+            <div className="login-divider">或</div>
+            <button type="button" className="line-login-button" onClick={startLineLogin}>
+              使用 LINE 登入
+            </button>
+          </>
+        )}
+        <p className="login-hint">
+          帳號由管理者建立，忘記密碼請聯絡管理者重設。
+          {lineLoginEnabled && <br />}
+          {lineLoginEnabled && '要用 LINE 登入，請先用帳號密碼登入後在左下角「綁定 LINE」。'}
+        </p>
       </form>
     </div>
   )

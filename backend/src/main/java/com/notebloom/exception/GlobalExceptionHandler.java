@@ -21,7 +21,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
-    @ExceptionHandler({DuplicateCategoryNameException.class, DuplicateUsernameException.class})
+    @ExceptionHandler({DuplicateCategoryNameException.class, DuplicateUsernameException.class,
+            LineAccountAlreadyLinkedException.class})
     public ResponseEntity<Map<String, Object>> handleDuplicate(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body(HttpStatus.CONFLICT, ex.getMessage()));
     }
@@ -46,6 +47,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleUploadTooLarge(MaxUploadSizeExceededException ex) {
         return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE)
                 .body(body(HttpStatus.CONTENT_TOO_LARGE, "圖片不能超過 10 MB"));
+    }
+
+    @ExceptionHandler(LineLoginException.class)
+    public ResponseEntity<Map<String, Object>> handleLineLogin(LineLoginException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(body(HttpStatus.SERVICE_UNAVAILABLE, "LINE 登入目前無法使用"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
