@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { exportMarkdown } from '../export/exportMarkdown'
 import { exportHtml } from '../export/exportHtml'
 import { inlineImages } from '../export/inlineImages'
+import { withTitleHeading } from '../export/withTitleHeading'
 import type { ExportThemeId } from '../export/themes'
 
 interface ExportMenuProps {
@@ -18,7 +19,8 @@ export function ExportMenu({ markdown, title, themeId }: ExportMenuProps) {
   async function run(exporter: (content: string) => void) {
     setBusy(true)
     try {
-      exporter(await inlineImages(markdown))
+      // 標題在匯出檔裡變成最上方的 H1
+      exporter(withTitleHeading(title, await inlineImages(markdown)))
     } finally {
       setBusy(false)
     }

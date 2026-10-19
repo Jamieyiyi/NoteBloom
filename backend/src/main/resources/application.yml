@@ -26,7 +26,9 @@ server:
   forward-headers-strategy: native
   servlet:
     session:
-      timeout: 7d
+      # Logged out after 30 minutes without requests; the front end keeps it alive while the reader is active
+      # (keep in sync with IDLE_LIMIT_MS in frontend/src/ui/useIdleLogout.ts)
+      timeout: 30m
       cookie:
         http-only: true
         same-site: lax

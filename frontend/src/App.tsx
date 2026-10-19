@@ -6,6 +6,7 @@ import { LoginPage } from './components/LoginPage'
 import { Notebook } from './components/Notebook'
 import { reportError, useNotify, type Notifier } from './ui/notifications'
 import { useAppTheme } from './ui/useAppTheme'
+import { useIdleLogout } from './ui/useIdleLogout'
 import './styles/app.css'
 
 export default function App() {
@@ -52,16 +53,18 @@ export default function App() {
     return () => onUnauthorized(null)
   }, [notify])
 
-  async function handleLogout() {
+  async function handleLogout(reason?: 'idle') {
     try {
       await logout()
-      notify.info('已登出')
+      notify.info(reason === 'idle' ? '閒置超過 30 分鐘，已自動登出' : '已登出')
     } catch (err) {
       reportError(notify, err, '登出失敗')
     } finally {
       setUser(null)
     }
   }
+
+  useIdleLogout(Boolean(user), () => void handleLogout('idle'))
 
   if (user === undefined) return <p className="app-hint">載入中…</p>
   if (user === null) return <LoginPage theme={theme} onToggleTheme={toggleTheme} onLoggedIn={setUser} />
@@ -73,7 +76,7 @@ export default function App() {
       user={user}
       theme={theme}
       onToggleTheme={toggleTheme}
-      onLogout={handleLogout}
+      onLogout={() => void handleLogout()}
       onUserChange={setUser}
     />
   )

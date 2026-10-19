@@ -8,7 +8,6 @@ import { toMarkdownContent } from '../content/legacyContent'
 import { handleMarkdownShortcut } from '../markdown/shortcuts'
 import { applyEdit, readSelection } from '../markdown/applyEdit'
 import { continueNumberedHeading, insertImages, type ImageReference } from '../markdown/markdownCommands'
-import { useStoredChoice } from '../ui/useStoredChoice'
 import { reportError, useNotify } from '../ui/notifications'
 import { buildCategoryTree, flattenWithPaths } from '../notes/categoryTree'
 import { ExportMenu } from './ExportMenu'
@@ -29,6 +28,9 @@ interface NoteEditorProps {
   categoryRedirects: Record<string, string | null>
   /** 預覽與匯出跟著編輯介面的明暗模式 */
   theme: AppTheme
+  /** 編輯 / 分割 / 預覽；由 Notebook 決定預設值，切換筆記時沿用 */
+  viewMode: ViewMode
+  onViewModeChange: (mode: ViewMode) => void
   onSaved: (summary: NoteSummary) => void
 }
 
@@ -38,13 +40,12 @@ interface Draft {
   categoryId: string | null
 }
 
-export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved }: NoteEditorProps) {
+export function NoteEditor({ note, categories, categoryRedirects, theme, viewMode, onViewModeChange, onSaved }: NoteEditorProps) {
   const [draft, setDraft] = useState<Draft>(() => ({
     title: note.title,
     content: toMarkdownContent(note.content),
     categoryId: note.categoryId,
   }))
-  const [viewMode, setViewMode] = useStoredChoice<ViewMode>('notebloom-view-mode', VIEW_MODES, 'split')
   const [status, setStatus] = useState<'saved' | 'saving' | 'error'>('saved')
   const [uploadingImages, setUploadingImages] = useState(0)
   const saveTimer = useRef<number | undefined>(undefined)
@@ -193,7 +194,7 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
               title={VIEW_MODE_LABELS[mode]}
               aria-label={VIEW_MODE_LABELS[mode]}
               className={mode === viewMode ? 'active' : undefined}
-              onClick={() => setViewMode(mode)}
+              onClick={() => onViewModeChange(mode)}
             >
               <ViewModeIcon mode={mode} />
             </button>
@@ -218,11 +219,11 @@ export function NoteEditor({ note, categories, categoryRedirects, theme, onSaved
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             onDrop={handleDrop}
-            placeholder="# 用 Markdown 開始寫作…"
+            placeholder="用 Markdown 開始寫作…（標題寫在上方，內文不用再加 # 標題）"
             spellCheck={false}
           />
         )}
-        {viewMode !== 'edit' && <MarkdownPreview markdown={draft.content} themeId={theme} />}
+        {viewMode !== 'edit' && <MarkdownPreview title={draft.title} markdown={draft.content} themeId={theme} />}
       </div>
     </div>
   )

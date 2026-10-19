@@ -9,6 +9,7 @@ import { BloomToggle } from './BloomToggle'
 import type { AppTheme } from '../ui/useAppTheme'
 import type { User } from '../types/user'
 import { AccountMenu } from './AccountMenu'
+import type { ViewMode } from './ViewModeIcon'
 import { reportError, useNotify } from '../ui/notifications'
 
 interface NotebookProps {
@@ -29,6 +30,8 @@ export function Notebook({ user, theme, onToggleTheme, onLogout, onUserChange }:
   const [loading, setLoading] = useState(true)
   // 已刪除分類 → 它的上一層；讓編輯中的筆記在下次存檔時跟著移過去
   const [categoryRedirects, setCategoryRedirects] = useState<Record<string, string | null>>({})
+  // 登入後先用預覽模式閱讀；新增筆記時切到分割模式，一邊寫一邊看結果
+  const [viewMode, setViewMode] = useState<ViewMode>('preview')
   const notify = useNotify()
 
   useEffect(() => {
@@ -59,6 +62,7 @@ export function Notebook({ user, theme, onToggleTheme, onLogout, onUserChange }:
       const created = await createNote({ title: 'Untitled', content: '', categoryId })
       setNotes((prev) => [toSummary(created), ...prev])
       setSelectedId(created.id)
+      setViewMode('split')
     } catch (err) {
       reportError(notify, err, '新增筆記失敗')
     }
@@ -151,6 +155,8 @@ export function Notebook({ user, theme, onToggleTheme, onLogout, onUserChange }:
             categories={categories}
             categoryRedirects={categoryRedirects}
             theme={theme}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
             onSaved={handleSaved}
           />
         )}

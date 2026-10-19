@@ -2,8 +2,11 @@ import { useDeferredValue, useEffect, useRef, useState } from 'react'
 import { renderMarkdown } from '../export/renderMarkdown'
 import { buildBodyHtml, buildHtmlDocument } from '../export/buildHtmlDocument'
 import type { ExportThemeId } from '../export/themes'
+import { withTitleHeading } from '../export/withTitleHeading'
 
 interface MarkdownPreviewProps {
+  /** 顯示成最上方的 H1，和匯出結果一致 */
+  title: string
   markdown: string
   themeId: ExportThemeId
 }
@@ -13,11 +16,11 @@ interface MarkdownPreviewProps {
  * iframe 只載入一次外殼，之後直接替換內容和 data-theme，打字時捲動位置才不會跳回頂端。
  * sandbox 不含 allow-scripts：筆記裡的 HTML 就算帶 script 也不會在預覽執行。
  */
-export function MarkdownPreview({ markdown, themeId }: MarkdownPreviewProps) {
+export function MarkdownPreview({ title, markdown, themeId }: MarkdownPreviewProps) {
   const frameRef = useRef<HTMLIFrameElement>(null)
   const [ready, setReady] = useState(false)
   const [shell] = useState(() => buildHtmlDocument('Preview', { html: '', toc: [] }, themeId, false))
-  const deferredMarkdown = useDeferredValue(markdown)
+  const deferredMarkdown = useDeferredValue(withTitleHeading(title, markdown))
 
   useEffect(() => {
     const doc = frameRef.current?.contentDocument

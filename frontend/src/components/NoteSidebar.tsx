@@ -30,8 +30,9 @@ interface NoteSidebarProps {
 interface GardenContext extends NoteSidebarProps {
   notesByCategory: Map<string | null, NoteSummary[]>
   categoryNames: Map<string, string>
-  isCollapsed: (key: CategoryFilter) => boolean
-  onBranchClick: (key: CategoryFilter) => void
+  /** Categories without any notes start folded until the reader opens them */
+  isCollapsed: (key: CategoryFilter, foldedByDefault: boolean) => boolean
+  onBranchClick: (key: CategoryFilter, foldedByDefault: boolean) => void
   expand: (key: CategoryFilter) => void
 }
 
@@ -41,7 +42,8 @@ interface GardenContext extends NoteSidebarProps {
  */
 export function NoteSidebar(props: NoteSidebarProps) {
   const { notes, categories, filter, theme, footer, onFilterChange, onCreate, onCreateCategory } = props
-  const [collapsed, setCollapsed] = useState<Set<CategoryFilter>>(new Set())
+  // Only what the reader chose; anything not in here uses its default (see isCollapsed)
+  const [collapsed, setCollapsed] = useState<Map<CategoryFilter, boolean>>(new Map())
   const [adding, setAdding] = useState(false)
 
   const tree = buildCategoryTree(categories)
@@ -52,20 +54,22 @@ export function NoteSidebar(props: NoteSidebarProps) {
   const categoryNames = new Map(categories.map((category) => [category.id, category.name]))
   const targetName = filter === 'all' || filter === 'uncategorized' ? null : categoryNames.get(filter)
 
-  const expand = (key: CategoryFilter) => setCollapsed((prev) => withOut(prev, key))
+  const setFolded = (key: CategoryFilter, folded: boolean) => setCollapsed((prev) => new Map(prev).set(key, folded))
+  const expand = (key: CategoryFilter) => setFolded(key, false)
+  const isCollapsed = (key: CategoryFilter, foldedByDefault: boolean) => collapsed.get(key) ?? foldedByDefault
 
   const context: GardenContext = {
     ...props,
     notesByCategory,
     categoryNames,
-    isCollapsed: (key) => collapsed.has(key),
+    isCollapsed,
     expand,
-    onBranchClick: (key) => {
+    onBranchClick: (key, foldedByDefault) => {
       if (filter !== key) {
         onFilterChange(key)
         expand(key)
       } else {
-        setCollapsed((prev) => (prev.has(key) ? withOut(prev, key) : new Set(prev).add(key)))
+        setFolded(key, !isCollapsed(key, foldedByDefault))
       }
     },
   }
@@ -96,7 +100,8 @@ export function NoteSidebar(props: NoteSidebarProps) {
           {tree.map((node) => (
             <CategoryBranch key={node.category.id} node={node} context={context} />
           ))}
-          <UncategorizedBranch context={context} />
+          {/* 沒有分類的筆記直接長在主莖上，不另外包一層「未分類」 */}
+          <NoteLeaves notes={notesByCategory.get(null) ?? []} context={context} showEmpty={false} />
           <li className="garden-node garden-add">
             {adding ? (
               <CategoryNameInput
@@ -121,12 +126,6 @@ export function NoteSidebar(props: NoteSidebarProps) {
   )
 }
 
-function withOut<T>(set: Set<T>, value: T): Set<T> {
-  const next = new Set(set)
-  next.delete(value)
-  return next
-}
-
 function CategoryBranch({ node, context }: { node: CategoryNode; context: GardenContext }) {
   const { category, depth, children } = node
   const { filter, notesByCategory, categoryNames, isCollapsed, onBranchClick, expand } = context
@@ -137,11 +136,11 @@ function CategoryBranch({ node, context }: { node: CategoryNode; context: Garden
 
   const ownNotes = notesByCategory.get(category.id) ?? []
   const total = subtreeIds(node).reduce((sum, id) => sum + (notesByCategory.get(id)?.length ?? 0), 0)
-  const collapsed = isCollapsed(category.id)
+  const collapsed = isCollapsed(category.id, total === 0)
   const canAddChild = depth < MAX_CATEGORY_DEPTH
 
   async function confirmDelete() {
-    const destination = category.parentId ? `「${categoryNames.get(category.parentId) ?? '上一層'}」` : '「未分類」與最上層'
+    const destination = category.parentId ? `「${categoryNames.get(category.parentId) ?? '上一層'}」` : '最上層'
     const moving = [
       children.length > 0 ? `${children.length} 個子分類` : null,
       ownNotes.length > 0 ? `${ownNotes.length} 篇筆記` : null,
@@ -171,7 +170,7 @@ function CategoryBranch({ node, context }: { node: CategoryNode; context: Garden
             type="button"
             className="garden-row-main"
             aria-expanded={!collapsed}
-            onClick={() => onBranchClick(category.id)}
+            onClick={() => onBranchClick(category.id, total === 0)}
           >
             <span className={collapsed ? 'garden-leaf-wrap folded' : 'garden-leaf-wrap'}>
               <LeafIcon size={depth === 1 ? 18 : 16} />
@@ -221,36 +220,6 @@ function CategoryBranch({ node, context }: { node: CategoryNode; context: Garden
             </li>
           )}
           <NoteLeaves notes={ownNotes} context={context} showEmpty={children.length === 0 && !addingChild} />
-        </ul>
-      )}
-    </li>
-  )
-}
-
-function UncategorizedBranch({ context }: { context: GardenContext }) {
-  const { filter, notesByCategory, isCollapsed, onBranchClick } = context
-  const notes = notesByCategory.get(null) ?? []
-  const collapsed = isCollapsed('uncategorized')
-
-  return (
-    <li className="garden-node">
-      <div className={filter === 'uncategorized' ? 'garden-row garden-branch active' : 'garden-row garden-branch'}>
-        <button
-          type="button"
-          className="garden-row-main"
-          aria-expanded={!collapsed}
-          onClick={() => onBranchClick('uncategorized')}
-        >
-          <span className={collapsed ? 'garden-leaf-wrap folded' : 'garden-leaf-wrap'}>
-            <LeafIcon tone="dry" />
-          </span>
-          <span className="garden-label">未分類</span>
-          <span className="sidebar-count">{notes.length}</span>
-        </button>
-      </div>
-      {!collapsed && (
-        <ul className="garden-twig">
-          <NoteLeaves notes={notes} context={context} showEmpty />
         </ul>
       )}
     </li>
