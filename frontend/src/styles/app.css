@@ -839,11 +839,32 @@ select {
   border-top: 1px solid var(--app-border);
 }
 
+.account-menu {
+  position: relative;
+}
+
+/* The whole row is the button that opens the account menu */
 .account-info {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   min-width: 0;
+  padding: 6px;
+  margin: -6px;
+  box-sizing: content-box;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.account-info:hover,
+.account-info.open {
+  background: var(--app-accent-soft);
 }
 
 .account-avatar {
@@ -860,6 +881,9 @@ select {
 }
 
 .account-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   min-width: 0;
 }
 
@@ -872,29 +896,69 @@ select {
 }
 
 .account-meta {
+  overflow: hidden;
   font-size: 12px;
   color: var(--app-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.account-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  margin-top: 8px;
-  padding-left: 42px;
-}
-
-.account-actions button {
-  padding: 0;
-  font-size: 12.5px;
+.account-chevron {
+  flex: none;
+  font-size: 11px;
   color: var(--app-muted);
+  transition: transform 0.15s ease;
+}
+
+.account-info:not(.open) .account-chevron {
+  transform: rotate(180deg);
+}
+
+/* Opens upwards, above the account row */
+.account-popover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+
+.account-popover button {
+  padding: 8px 10px;
+  font-size: 13.5px;
+  color: var(--app-text);
+  text-align: left;
   background: none;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
 }
 
-.account-actions button:hover {
+.account-popover button:hover:not(:disabled) {
   color: var(--app-accent);
+  background: var(--app-accent-soft);
+}
+
+.account-popover button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.account-popover-divider {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--app-border);
+}
+
+.account-popover .account-popover-logout {
+  color: var(--app-danger);
 }
 
 /* ---------- Dialogs ---------- */
@@ -1253,9 +1317,4 @@ select {
 
 .line-login-button:hover {
   filter: brightness(0.95);
-}
-
-.account-actions button:disabled {
-  opacity: 0.6;
-  cursor: default;
 }
