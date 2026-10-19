@@ -1165,17 +1165,19 @@ select {
   flex: none;
 }
 
-/* Toasts: stacked in the bottom-right corner, newest at the bottom */
+/* Toasts: centred at the top of the window, newest first */
 .toast-stack {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  top: 16px;
+  left: 50%;
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: 8px;
-  max-width: min(380px, calc(100vw - 32px));
+  width: max-content;
+  max-width: min(480px, calc(100vw - 32px));
+  transform: translateX(-50%);
   pointer-events: none;
 }
 
@@ -1193,7 +1195,10 @@ select {
   border-radius: 10px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
   pointer-events: auto;
-  animation: toast-in 0.18s ease-out;
+  /* Fades out during its last 0.3 s (TOAST_DURATION_MS is 3 s) */
+  animation:
+    toast-in 0.18s ease-out,
+    toast-out 0.3s ease-in 2.7s forwards;
 }
 
 .toast .message-flower {
@@ -1223,7 +1228,14 @@ select {
 @keyframes toast-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
   }
 }
 

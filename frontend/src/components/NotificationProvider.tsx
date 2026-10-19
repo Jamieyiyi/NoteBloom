@@ -14,8 +14,8 @@ interface PendingConfirm {
   resolve: (confirmed: boolean) => void
 }
 
-// Errors and warnings stay longer so there is time to read them
-const TOAST_DURATION_MS: Record<MessageTone, number> = { info: 3500, success: 3500, warning: 6000, error: 7000 }
+/** Every message stays about 3 seconds; keep in sync with the toast-out delay in app.css */
+const TOAST_DURATION_MS = 3000
 const MAX_TOASTS = 4
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
@@ -31,7 +31,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     const push = (tone: MessageTone) => (text: string) => {
       const id = ++nextId.current
       setToasts((prev) => [...prev.slice(-(MAX_TOASTS - 1)), { id, tone, text }])
-      window.setTimeout(() => dismiss(id), TOAST_DURATION_MS[tone])
+      window.setTimeout(() => dismiss(id), TOAST_DURATION_MS)
     }
     return {
       info: push('info'),
@@ -59,7 +59,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       {children}
 
       <div className="toast-stack">
-        {toasts.map((toast) => (
+        {/* Newest first, right under the top edge */}
+        {[...toasts].reverse().map((toast) => (
           <div
             key={toast.id}
             className={`toast toast-${toast.tone}`}
