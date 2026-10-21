@@ -27,6 +27,8 @@
   --leaf-vein: #6f8f7b;
   --leaf-dry: #c4c4cc;
   --stem: #c6d4cb;
+  --pot: #dd9c7f;
+  --pot-rim: #c27a5c;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,6 +57,8 @@
     --leaf-vein: #5d7d69;
     --leaf-dry: #6e6e78;
     --stem: #46544b;
+    --pot: #b97b61;
+    --pot-rim: #9a604a;
   }
 }
 
@@ -83,6 +87,8 @@
   --leaf-vein: #5d7d69;
   --leaf-dry: #6e6e78;
   --stem: #46544b;
+  --pot: #b97b61;
+  --pot-rim: #9a604a;
 }
 
 * {

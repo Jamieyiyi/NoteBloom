@@ -5,7 +5,7 @@ import type { AppTheme } from '../ui/useAppTheme'
 import { buildCategoryTree, subtreeIds, type CategoryNode } from '../notes/categoryTree'
 import logoOnDark from '../assets/logo-on-dark.png'
 import logoOnLight from '../assets/logo-on-light.png'
-import { FlowerIcon, LeafIcon, SproutIcon } from './GardenIcons'
+import { FlowerIcon, LeafIcon, PotIcon, SproutIcon } from './GardenIcons'
 import { Notice } from './Notice'
 import { useNotify } from '../ui/notifications'
 
@@ -30,15 +30,15 @@ interface NoteSidebarProps {
 interface GardenContext extends NoteSidebarProps {
   notesByCategory: Map<string | null, NoteSummary[]>
   categoryNames: Map<string, string>
-  /** Categories without any notes start folded until the reader opens them */
-  isCollapsed: (key: CategoryFilter, foldedByDefault: boolean) => boolean
-  onBranchClick: (key: CategoryFilter, foldedByDefault: boolean) => void
+  /** Every category starts folded (also right after login) until the reader opens it */
+  isCollapsed: (key: CategoryFilter) => boolean
+  onBranchClick: (key: CategoryFilter) => void
   expand: (key: CategoryFilter) => void
 }
 
 /**
- * 側欄是一棵花：最上面的花代表全部筆記，花莖往下長出分類的葉子（最多 5 層），
- * 每片分類葉子底下再長出子分類與筆記的小葉子；正在看的筆記會開成小花苞。
+ * 側欄是一座花園：最上面的花代表全部筆記，分類是一盆盆栽（最多 5 層），盆栽底下長出子分類與筆記的小葉子；
+ * 盆栽沒有筆記時是嫩芽、收起來是花苞、展開時開花；正在看的筆記會開成小花。登入後所有分類都先收起來。
  */
 export function NoteSidebar(props: NoteSidebarProps) {
   const { notes, categories, filter, theme, footer, onFilterChange, onCreate, onCreateCategory } = props
@@ -56,7 +56,7 @@ export function NoteSidebar(props: NoteSidebarProps) {
 
   const setFolded = (key: CategoryFilter, folded: boolean) => setCollapsed((prev) => new Map(prev).set(key, folded))
   const expand = (key: CategoryFilter) => setFolded(key, false)
-  const isCollapsed = (key: CategoryFilter, foldedByDefault: boolean) => collapsed.get(key) ?? foldedByDefault
+  const isCollapsed = (key: CategoryFilter) => collapsed.get(key) ?? true
 
   const context: GardenContext = {
     ...props,
@@ -64,12 +64,12 @@ export function NoteSidebar(props: NoteSidebarProps) {
     categoryNames,
     isCollapsed,
     expand,
-    onBranchClick: (key, foldedByDefault) => {
+    onBranchClick: (key) => {
       if (filter !== key) {
         onFilterChange(key)
         expand(key)
       } else {
-        setFolded(key, !isCollapsed(key, foldedByDefault))
+        setFolded(key, !isCollapsed(key))
       }
     },
   }
@@ -136,7 +136,7 @@ function CategoryBranch({ node, context }: { node: CategoryNode; context: Garden
 
   const ownNotes = notesByCategory.get(category.id) ?? []
   const total = subtreeIds(node).reduce((sum, id) => sum + (notesByCategory.get(id)?.length ?? 0), 0)
-  const collapsed = isCollapsed(category.id, total === 0)
+  const collapsed = isCollapsed(category.id)
   const canAddChild = depth < MAX_CATEGORY_DEPTH
 
   async function confirmDelete() {
@@ -170,10 +170,10 @@ function CategoryBranch({ node, context }: { node: CategoryNode; context: Garden
             type="button"
             className="garden-row-main"
             aria-expanded={!collapsed}
-            onClick={() => onBranchClick(category.id, total === 0)}
+            onClick={() => onBranchClick(category.id)}
           >
-            <span className={collapsed ? 'garden-leaf-wrap folded' : 'garden-leaf-wrap'}>
-              <LeafIcon size={depth === 1 ? 18 : 16} />
+            <span className="garden-pot-wrap">
+              <PotIcon stage={total === 0 ? 'sprout' : collapsed ? 'bud' : 'bloom'} size={depth === 1 ? 20 : 18} />
             </span>
             <span className="garden-label" title={category.name}>{category.name}</span>
             <span className="sidebar-count">{total}</span>

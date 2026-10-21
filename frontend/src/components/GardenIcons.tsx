@@ -1,4 +1,4 @@
-// 側欄「花園」用的圖示：花（全部筆記 / 目前選取的筆記）、葉子（分類 / 筆記）、嫩芽（新增分類）
+// 側欄「花園」用的圖示：花（全部筆記 / 目前選取的筆記）、盆栽（分類）、葉子（筆記）、嫩芽（新增分類）
 
 // 五片花瓣的圓心，和 Logo 裡的小花一樣是五瓣
 const PETALS: [number, number][] = [
@@ -64,6 +64,44 @@ export function SproutIcon({ size = 18 }: { size?: number }) {
       <path d="M12 21v-8" stroke="var(--stem)" strokeWidth={2} strokeLinecap="round" />
       <path d="M12 13C12 8 8.5 5 4 5c0 4.5 3.5 8 8 8Z" fill="none" stroke="var(--leaf)" strokeWidth={1.6} strokeDasharray="2.2 2" />
       <path d="M12 13c0-4 3-6.5 7-6.5 0 3.8-3 6.5-7 6.5Z" fill="none" stroke="var(--leaf)" strokeWidth={1.6} strokeDasharray="2.2 2" />
+    </svg>
+  )
+}
+
+/** 分類的盆栽會跟著狀態長大：還沒有筆記是嫩芽，有筆記但收起來是花苞，展開時開花 */
+export type PotStage = 'sprout' | 'bud' | 'bloom'
+
+// 開花用的小花：同樣五瓣，縮小後放在花莖頂端 (12, 6.2)
+const SMALL_PETALS = PETALS.map(([cx, cy]) => [12 + (cx - 12) * 0.56, 6.2 + (cy - 12) * 0.56] as const)
+
+export function PotIcon({ stage, size = 20 }: { stage: PotStage; size?: number }) {
+  return (
+    <svg className={`garden-pot garden-pot-${stage}`} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      {stage === 'sprout' ? (
+        <>
+          <path d="M12 14V9.6" stroke="var(--leaf-vein)" strokeWidth={1.5} strokeLinecap="round" />
+          <path d="M12 11c0-2.6-1.9-4.3-4.6-4.3 0 2.5 1.9 4.3 4.6 4.3Z" fill="var(--leaf)" />
+          <path d="M12 10.1c0-2.2 1.6-3.7 4-3.7 0 2.2-1.6 3.7-4 3.7Z" fill="var(--leaf)" />
+        </>
+      ) : (
+        <>
+          <path d="M12 14V7.4" stroke="var(--leaf-vein)" strokeWidth={1.5} strokeLinecap="round" />
+          <path d="M12 12.2c0-2-1.5-3.3-3.6-3.3 0 2 1.5 3.3 3.6 3.3Z" fill="var(--leaf)" />
+          <path d="M12 11.4c0-1.8 1.3-3 3.2-3 0 1.8-1.3 3-3.2 3Z" fill="var(--leaf)" />
+          {stage === 'bud' ? (
+            <path d="M12 1.8c2.3 1.9 2.6 4.9 0 6.2-2.6-1.3-2.3-4.3 0-6.2Z" fill="var(--petal)" />
+          ) : (
+            <>
+              {SMALL_PETALS.map(([cx, cy]) => (
+                <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={2.6} fill="var(--petal)" />
+              ))}
+              <circle cx={12} cy={6.2} r={1.7} fill="var(--petal-center)" />
+            </>
+          )}
+        </>
+      )}
+      <path d="M6.3 15.8h11.4l-1.5 6.2H7.8Z" fill="var(--pot)" />
+      <rect x={5} y={13.6} width={14} height={2.8} rx={1} fill="var(--pot-rim)" />
     </svg>
   )
 }
