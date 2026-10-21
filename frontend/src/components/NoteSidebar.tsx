@@ -2,10 +2,11 @@ import { useRef, useState, type ReactNode } from 'react'
 import type { NoteSummary } from '../types/note'
 import { MAX_CATEGORY_DEPTH, type Category, type CategoryFilter } from '../types/category'
 import type { AppTheme } from '../ui/useAppTheme'
-import { buildCategoryTree, subtreeIds, type CategoryNode } from '../notes/categoryTree'
+import { buildCategoryTree, flattenWithPaths, subtreeIds, type CategoryNode } from '../notes/categoryTree'
 import logoOnDark from '../assets/logo-on-dark.png'
 import logoOnLight from '../assets/logo-on-light.png'
-import { FlowerIcon, LeafIcon, PotIcon, SproutIcon } from './GardenIcons'
+import { PetalIcon, PotIcon, SproutIcon } from './GardenIcons'
+import { categoryColors, UNCATEGORIZED_COLOR } from '../ui/gardenColors'
 import { Notice } from './Notice'
 import { useNotify } from '../ui/notifications'
 
@@ -30,6 +31,8 @@ interface NoteSidebarProps {
 interface GardenContext extends NoteSidebarProps {
   notesByCategory: Map<string | null, NoteSummary[]>
   categoryNames: Map<string, string>
+  /** Flower / petal colour of each category */
+  colors: Map<string, string>
   /** Every category starts folded (also right after login) until the reader opens it */
   isCollapsed: (key: CategoryFilter) => boolean
   onBranchClick: (key: CategoryFilter) => void
@@ -37,8 +40,8 @@ interface GardenContext extends NoteSidebarProps {
 }
 
 /**
- * 側欄是一座花園：最上面的花代表全部筆記，分類是一盆盆栽（最多 5 層），盆栽底下長出子分類與筆記的小葉子；
- * 盆栽沒有筆記時是嫩芽、收起來是花苞、展開時開花；正在看的筆記會開成小花。登入後所有分類都先收起來。
+ * 側欄是一座花園：最上面是「全部筆記」，分類是一盆盆開花的盆栽（最多 5 層，每個分類有自己的花色），
+ * 筆記是一片片花瓣，顏色跟著所在的分類；沒有分類的筆記是粉紅色花瓣。登入後所有分類都先收起來。
  */
 export function NoteSidebar(props: NoteSidebarProps) {
   const { notes, categories, filter, theme, footer, onFilterChange, onCreate, onCreateCategory } = props
@@ -52,6 +55,7 @@ export function NoteSidebar(props: NoteSidebarProps) {
     notesByCategory.set(note.categoryId, [...(notesByCategory.get(note.categoryId) ?? []), note])
   }
   const categoryNames = new Map(categories.map((category) => [category.id, category.name]))
+  const colors = categoryColors(flattenWithPaths(tree).map((entry) => entry.id))
   const targetName = filter === 'all' || filter === 'uncategorized' ? null : categoryNames.get(filter)
 
   const setFolded = (key: CategoryFilter, folded: boolean) => setCollapsed((prev) => new Map(prev).set(key, folded))
@@ -62,6 +66,7 @@ export function NoteSidebar(props: NoteSidebarProps) {
     ...props,
     notesByCategory,
     categoryNames,
+    colors,
     isCollapsed,
     expand,
     onBranchClick: (key) => {
@@ -91,7 +96,6 @@ export function NoteSidebar(props: NoteSidebarProps) {
           className={filter === 'all' ? 'garden-root active' : 'garden-root'}
           onClick={() => onFilterChange('all')}
         >
-          <FlowerIcon size={30} />
           <span className="garden-root-label">全部筆記</span>
           <span className="sidebar-count">{notes.length}</span>
         </button>
@@ -101,7 +105,7 @@ export function NoteSidebar(props: NoteSidebarProps) {
             <CategoryBranch key={node.category.id} node={node} context={context} />
           ))}
           {/* 沒有分類的筆記直接長在主莖上，不另外包一層「未分類」 */}
-          <NoteLeaves notes={notesByCategory.get(null) ?? []} context={context} showEmpty={false} />
+          <NoteLeaves notes={notesByCategory.get(null) ?? []} color={UNCATEGORIZED_COLOR} context={context} showEmpty={false} />
           <li className="garden-node garden-add">
             {adding ? (
               <CategoryNameInput
@@ -128,13 +132,14 @@ export function NoteSidebar(props: NoteSidebarProps) {
 
 function CategoryBranch({ node, context }: { node: CategoryNode; context: GardenContext }) {
   const { category, depth, children } = node
-  const { filter, notesByCategory, categoryNames, isCollapsed, onBranchClick, expand } = context
+  const { filter, notesByCategory, categoryNames, colors, isCollapsed, onBranchClick, expand } = context
   const { onCreateCategory, onRenameCategory, onDeleteCategory } = context
   const [editing, setEditing] = useState(false)
   const [addingChild, setAddingChild] = useState(false)
   const { confirm } = useNotify()
 
   const ownNotes = notesByCategory.get(category.id) ?? []
+  const color = colors.get(category.id) ?? UNCATEGORIZED_COLOR
   const total = subtreeIds(node).reduce((sum, id) => sum + (notesByCategory.get(id)?.length ?? 0), 0)
   const collapsed = isCollapsed(category.id)
   const canAddChild = depth < MAX_CATEGORY_DEPTH
@@ -173,7 +178,7 @@ function CategoryBranch({ node, context }: { node: CategoryNode; context: Garden
             onClick={() => onBranchClick(category.id)}
           >
             <span className="garden-pot-wrap">
-              <PotIcon stage={total === 0 ? 'sprout' : collapsed ? 'bud' : 'bloom'} size={depth === 1 ? 20 : 18} />
+              <PotIcon color={color} size={depth === 1 ? 20 : 18} />
             </span>
             <span className="garden-label" title={category.name}>{category.name}</span>
             <span className="sidebar-count">{total}</span>
@@ -219,14 +224,22 @@ function CategoryBranch({ node, context }: { node: CategoryNode; context: Garden
               />
             </li>
           )}
-          <NoteLeaves notes={ownNotes} context={context} showEmpty={children.length === 0 && !addingChild} />
+          <NoteLeaves notes={ownNotes} color={color} context={context} showEmpty={children.length === 0 && !addingChild} />
         </ul>
       )}
     </li>
   )
 }
 
-function NoteLeaves({ notes, context, showEmpty }: { notes: NoteSummary[]; context: GardenContext; showEmpty: boolean }) {
+interface NoteLeavesProps {
+  notes: NoteSummary[]
+  /** Petal colour: the flower colour of the category the notes are in */
+  color: string
+  context: GardenContext
+  showEmpty: boolean
+}
+
+function NoteLeaves({ notes, color, context, showEmpty }: NoteLeavesProps) {
   const { selectedId, onSelect, onDelete } = context
   const { confirm } = useNotify()
 
@@ -242,7 +255,7 @@ function NoteLeaves({ notes, context, showEmpty }: { notes: NoteSummary[]; conte
           <li key={note.id} className="garden-node">
             <div className={selected ? 'garden-row garden-note active' : 'garden-row garden-note'}>
               <button type="button" className="garden-row-main" onClick={() => onSelect(note)}>
-                {selected ? <FlowerIcon size={15} /> : <LeafIcon size={13} />}
+                <PetalIcon color={color} size={selected ? 16 : 14} />
                 <span className="garden-label" title={note.title || 'Untitled'}>{note.title || 'Untitled'}</span>
               </button>
               <div className="garden-actions">

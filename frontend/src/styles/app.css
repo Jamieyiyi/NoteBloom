@@ -108,7 +108,7 @@ select {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 8px 0 2px;
+  padding: 4px 8px 0 8px;
   text-align: left;
   background: none;
   border: none;
@@ -125,15 +125,6 @@ select {
   color: var(--app-accent);
 }
 
-.garden-root .garden-flower {
-  flex-shrink: 0;
-  transition: transform 0.4s ease;
-}
-
-.garden-root:hover .garden-flower {
-  transform: rotate(36deg);
-}
-
 .garden-stem,
 .garden-twig {
   position: relative;
@@ -141,16 +132,16 @@ select {
   margin: 0;
 }
 
-/* 主花莖：從花的正下方（x = 16px）往下長 */
+/* 主花莖：從「全部筆記」第一個字的正下方（x = 9px）往下長 */
 .garden-stem {
-  padding: 4px 0 0 30px;
+  padding: 4px 0 0 23px;
 }
 
 .garden-stem::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 16px;
+  left: 9px;
   width: 2px;
   height: 6px;
   background: var(--stem);
@@ -288,8 +279,7 @@ select {
   font-size: 13.5px;
 }
 
-.garden-note .garden-leaf,
-.garden-note .garden-flower {
+.garden-note .garden-petal {
   flex-shrink: 0;
 }
 
