@@ -25,6 +25,7 @@ import 'prismjs/components/prism-nginx'
 import 'prismjs/components/prism-diff'
 import 'prismjs/components/prism-markdown'
 import { makeUniqueSlug, slugify } from './slugify'
+import { JIANPU_LANGUAGES, renderJianpu } from './jianpu'
 import { CALLOUT_ICON_PATHS, CHECK_ICON_PATH, COPY_ICON_PATH, svgIcon, type CalloutKind } from '../ui/icons'
 
 export interface TocEntry {
@@ -95,6 +96,11 @@ function decorateCodeBlocks(parsed: Document): void {
   parsed.querySelectorAll('pre > code').forEach((code) => {
     const pre = code.parentElement as HTMLElement
     const requested = requestedLanguage(code.className)
+    // ```jianpu 區塊是簡譜，畫成樂譜而不是程式碼
+    if (requested && JIANPU_LANGUAGES.has(requested)) {
+      pre.replaceWith(renderJianpu(code.textContent ?? '', parsed))
+      return
+    }
     const language = resolveLanguage(requested)
 
     if (language) {

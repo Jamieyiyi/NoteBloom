@@ -3,6 +3,7 @@ import {
   insertCallout,
   insertCodeBlock,
   insertHorizontalRule,
+  insertJianpu,
   insertLink,
   insertTable,
   toggleLinePrefix,
@@ -32,7 +33,20 @@ const CALLOUTS: readonly { marker: CalloutMarker; label: string }[] = [
   { marker: 'ERROR', label: '⊗ 錯誤' },
 ]
 
-type Popover = 'code' | 'table' | 'quote' | 'image' | null
+const JIANPU_HELP: readonly [string, string][] = [
+  ['R: / L:', '右手 / 左手，同一行譜的小節會上下對齊'],
+  ['1–7  0', '音符、休止符'],
+  ["1'  1,", '高八度（上加點）、低八度（下加點）'],
+  ['#4  b7', '升、降'],
+  ['5_  5__', '八分、十六分音符（減時線）'],
+  ['5.  -', '附點、延長一拍'],
+  ['[135]', '和弦（同時按）'],
+  ['|  ||  |]  |: :|', '小節線、雙縱線、終止線、反覆'],
+  ['title: 等', '曲名 title、調 key（1=C）、拍號 time、速度 tempo'],
+  ['空一行', '換到下一行譜'],
+]
+
+type Popover = 'code' | 'table' | 'quote' | 'image' | 'jianpu' | null
 
 export function MarkdownToolbar({ textareaRef, onChange, onUploadImages }: MarkdownToolbarProps) {
   const [popover, setPopover] = useState<Popover>(null)
@@ -158,6 +172,32 @@ export function MarkdownToolbar({ textareaRef, onChange, onUploadImages }: Markd
           }}
         />
         <ToolButton label="―" title="分隔線" onClick={() => run(insertHorizontalRule)} />
+        <PopoverButton
+          label="♪ 簡譜"
+          title="插入簡譜（鋼琴可分右手 / 左手）"
+          open={popover === 'jianpu'}
+          onToggle={() => setPopover(popover === 'jianpu' ? null : 'jianpu')}
+          onClose={() => setPopover(null)}
+        >
+          <div className="md-popover-title">簡譜寫法</div>
+          <table className="md-jianpu-help">
+            <tbody>
+              {JIANPU_HELP.map(([syntax, meaning]) => (
+                <tr key={syntax}>
+                  <td>
+                    <code>{syntax}</code>
+                  </td>
+                  <td>{meaning}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="md-callout-menu md-jianpu-insert">
+            <button type="button" onClick={() => run(insertJianpu)}>
+              ♪ 插入鋼琴範例
+            </button>
+          </div>
+        </PopoverButton>
       </ToolGroup>
     </div>
   )

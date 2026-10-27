@@ -105,6 +105,22 @@ export function insertCodeBlock(selection: Selection, language: string): TextEdi
   return insertBlock(selection, block, opening.length, opening.length + code.length)
 }
 
+/** 簡譜範例（鋼琴右手 / 左手），選取曲名方便直接改 */
+export function insertJianpu(selection: Selection): TextEdit {
+  const title = '小星星'
+  const opening = '```jianpu\ntitle: '
+  const block = [
+    `${opening}${title}`,
+    'key: C',
+    'time: 4/4',
+    'tempo: 96',
+    "R: 1 1 5 5 | 6 6 5 - | 4 4 3 3 | 2_ 2_ 2 1 - |]",
+    'L: [1,3,5,] - [1,3,5,] - | [4,6,1] - [1,3,5,] - | [4,6,1] - [1,3,5,] - | [5,,7,,2,] - [1,3,5,] - |]',
+    '```',
+  ].join('\n')
+  return insertBlock(selection, block, opening.length, opening.length + title.length)
+}
+
 /** rows 是資料列數（不含標題列），會選取第一個標題儲存格方便直接改名。 */
 export function insertTable(selection: Selection, rows: number, columns: number): TextEdit {
   const headers = Array.from({ length: columns }, (_, i) => `欄位 ${i + 1}`)

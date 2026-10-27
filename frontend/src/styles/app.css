@@ -548,6 +548,32 @@ select {
   color: var(--app-muted);
 }
 
+.md-jianpu-help {
+  width: 300px;
+  font-size: 12px;
+  border-collapse: collapse;
+}
+
+.md-jianpu-help td {
+  padding: 3px 4px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.md-jianpu-help td:first-child {
+  white-space: nowrap;
+}
+
+.md-jianpu-help code {
+  font-family: 'Fira Code', Consolas, monospace;
+  color: var(--app-accent);
+}
+
+.md-jianpu-insert {
+  width: auto;
+  margin-top: 8px;
+}
+
 .md-language-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1469,8 +1495,9 @@ select {
     overflow-y: auto;
   }
 
-  .md-language-grid {
-    width: auto;
+  .md-language-grid,
+  .md-jianpu-help {
+    width: 100%;
   }
 
   /* Split view: editor above, preview below */

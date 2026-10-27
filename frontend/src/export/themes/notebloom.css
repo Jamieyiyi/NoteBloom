@@ -681,7 +681,211 @@ body {
 }
 
 /* ---------- 響應式 / 列印 ---------- */
+/* ---------- 簡譜（```jianpu 區塊） ---------- */
+.jianpu {
+  margin: 1.2em 0 1.6em;
+  padding: 16px 18px 10px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.jianpu-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin-bottom: 6px;
+}
+
+.jianpu-title {
+  font-size: 1.2em;
+  font-weight: 700;
+}
+
+.jianpu-meta {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.jianpu-empty {
+  color: var(--muted);
+}
+
+/* 一行譜太寬時（手機）左右滑動，不把小節擠歪 */
+.jianpu-system {
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.jianpu-system + .jianpu-system {
+  border-top: 1px dashed var(--border);
+}
+
+.jianpu-grid {
+  display: grid;
+  row-gap: 6px;
+  width: max-content;
+  min-width: 100%;
+}
+
+.jianpu-label {
+  align-self: end;
+  padding: 0 10px 1.1em 0;
+  font-size: 0.75em;
+  color: var(--muted);
+}
+
+/* 小節：音符平均撐滿整個小節，相鄰的減時線才會連在一起 */
+.jianpu-measure {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-width: 3em;
+  padding: 0 8px;
+  border-right: 1.5px solid var(--text-soft);
+}
+
+.jianpu-measure.bar-double,
+.jianpu-measure.bar-repeat-start {
+  border-right: 4px double var(--text-soft);
+}
+
+/* 終止線與反覆：細線＋粗線，反覆再加兩個點 */
+.jianpu-measure.bar-end,
+.jianpu-measure.bar-repeat-end {
+  border-right: 4px solid var(--text-soft);
+  padding-right: 14px;
+}
+
+.jianpu-measure.bar-end::after,
+.jianpu-measure.bar-repeat-end::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 6px;
+  bottom: 0;
+  width: 1.5px;
+  background: var(--text-soft);
+}
+
+.jianpu-measure.bar-repeat-end {
+  padding-right: 22px;
+}
+
+.jianpu-measure.bar-repeat-end::before,
+.jianpu-measure.after-repeat-start::before {
+  content: ':';
+  position: absolute;
+  top: 50%;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-soft);
+  transform: translateY(-60%);
+}
+
+.jianpu-measure.bar-repeat-end::before {
+  right: 12px;
+}
+
+.jianpu-measure.after-repeat-start {
+  padding-left: 16px;
+}
+
+/* 開頭就反覆（|:）：補上左邊的雙縱線 */
+.jianpu-measure.first.after-repeat-start {
+  border-left: 4px double var(--text-soft);
+}
+
+.jianpu-measure.after-repeat-start::before {
+  left: 5px;
+}
+
+.jp-item {
+  display: inline-flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  min-width: 1.5em;
+  font-family: 'Roboto', 'Noto Sans TC', sans-serif;
+  font-size: 1.3em;
+  line-height: 1.15;
+}
+
+.jp-num {
+  position: relative;
+  font-weight: 500;
+}
+
+/* 升降記號在數字左上，附點在右邊 */
+.jp-acc {
+  position: absolute;
+  top: -0.2em;
+  right: 100%;
+  font-size: 0.6em;
+}
+
+.jp-aug {
+  position: absolute;
+  top: 0.35em;
+  left: 100%;
+  margin-left: 0.12em;
+  font-size: 0.45em;
+}
+
+/* 八度點：上方的往上疊、下方的往下疊 */
+.jp-hi,
+.jp-lo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.42em;
+  line-height: 0.8;
+}
+
+.jp-hi {
+  justify-content: flex-end;
+}
+
+/* 最下面那個音的線與點保留固定高度，同一小節裡的數字才會對齊 */
+.jp-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  min-height: 8px;
+  padding-top: 2px;
+}
+
+.jp-lines + .jp-lo {
+  min-height: 1.7em;
+}
+
+.jp-line {
+  display: block;
+  height: 1.5px;
+  background: currentColor;
+}
+
+.jp-error {
+  align-self: center;
+  padding: 0 2px;
+  font-size: 0.9em;
+  color: #e5484d;
+  text-decoration: underline wavy #e5484d;
+}
+
 @media (max-width: 900px) {
+  .jianpu {
+    padding: 12px 12px 6px;
+  }
+
+  .jianpu-measure {
+    padding: 0 5px;
+  }
+
   .nb-page {
     grid-template-columns: minmax(0, 1fr);
     gap: 28px;
