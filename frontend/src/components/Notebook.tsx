@@ -32,6 +32,8 @@ export function Notebook({ user, theme, onToggleTheme, onLogout, onUserChange }:
   const [categoryRedirects, setCategoryRedirects] = useState<Record<string, string | null>>({})
   // 登入後先用預覽模式閱讀；新增筆記時切到分割模式，一邊寫一邊看結果
   const [viewMode, setViewMode] = useState<ViewMode>('preview')
+  // Phones: the sidebar is a drawer, closed while reading or writing
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const notify = useNotify()
 
   useEffect(() => {
@@ -44,6 +46,15 @@ export function Notebook({ user, theme, onToggleTheme, onLogout, onUserChange }:
       .catch((err) => reportError(notify, err, '載入筆記失敗，請重新整理頁面'))
       .finally(() => setLoading(false))
   }, [notify])
+
+  useEffect(() => {
+    if (!sidebarOpen) return
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') setSidebarOpen(false)
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [sidebarOpen])
 
   useEffect(() => {
     if (!selectedId) {
@@ -63,6 +74,7 @@ export function Notebook({ user, theme, onToggleTheme, onLogout, onUserChange }:
       setNotes((prev) => [toSummary(created), ...prev])
       setSelectedId(created.id)
       setViewMode('split')
+      setSidebarOpen(false)
     } catch (err) {
       reportError(notify, err, '新增筆記失敗')
     }
@@ -87,6 +99,7 @@ export function Notebook({ user, theme, onToggleTheme, onLogout, onUserChange }:
   function handleSelect(note: NoteSummary) {
     setSelectedId(note.id)
     setFilter(note.categoryId ?? 'uncategorized')
+    setSidebarOpen(false)
   }
 
   function handleSaved(summary: NoteSummary) {
@@ -142,8 +155,23 @@ export function Notebook({ user, theme, onToggleTheme, onLogout, onUserChange }:
         onRenameCategory={handleRenameCategory}
         onDeleteCategory={handleDeleteCategory}
         footer={<AccountMenu user={user} onLogout={onLogout} onUserChange={onUserChange} />}
+        open={sidebarOpen}
       />
+      {/* Phones only (hidden by CSS on wider screens): dims the page behind the open drawer, tap to close */}
+      {sidebarOpen && <div className="sidebar-backdrop" aria-hidden="true" onClick={() => setSidebarOpen(false)} />}
       <main className="app-main">
+        <button
+          type="button"
+          className="mobile-menu-button"
+          aria-label="開啟筆記列表"
+          aria-controls="note-sidebar"
+          aria-expanded={sidebarOpen}
+          onClick={() => setSidebarOpen(true)}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
         <div className="app-theme-toggle">
           <BloomToggle theme={theme} onToggle={onToggleTheme} />
         </div>

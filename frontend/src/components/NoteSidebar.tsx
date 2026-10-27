@@ -25,6 +25,8 @@ interface NoteSidebarProps {
   onDeleteCategory: (id: string) => Promise<void>
   /** Shown pinned to the bottom of the sidebar (the account menu) */
   footer?: ReactNode
+  /** Phones: the sidebar is a drawer that slides in while this is true */
+  open?: boolean
 }
 
 /** 樹狀節點共用的狀態與動作，避免每一層都要逐一傳 props */
@@ -44,7 +46,7 @@ interface GardenContext extends NoteSidebarProps {
  * 筆記是一片片花瓣，顏色跟著所在的分類；沒有分類的筆記是粉紅色花瓣。登入後所有分類都先收起來。
  */
 export function NoteSidebar(props: NoteSidebarProps) {
-  const { notes, categories, filter, theme, footer, onFilterChange, onCreate, onCreateCategory } = props
+  const { notes, categories, filter, theme, footer, open, onFilterChange, onCreate, onCreateCategory } = props
   // Only what the reader chose; anything not in here uses its default (see isCollapsed)
   const [collapsed, setCollapsed] = useState<Map<CategoryFilter, boolean>>(new Map())
   const [adding, setAdding] = useState(false)
@@ -80,7 +82,7 @@ export function NoteSidebar(props: NoteSidebarProps) {
   }
 
   return (
-    <aside className="note-sidebar">
+    <aside className={open ? 'note-sidebar open' : 'note-sidebar'} id="note-sidebar">
       <div className="note-sidebar-header">
         <div className="note-sidebar-brand">
           <img className="brand-logo" src={theme === 'dark' ? logoOnDark : logoOnLight} alt="NoteBloom" />

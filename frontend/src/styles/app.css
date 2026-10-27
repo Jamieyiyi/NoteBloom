@@ -1,6 +1,7 @@
 .app-layout {
   display: flex;
   height: 100vh;
+  height: 100dvh;
 }
 
 button,
@@ -701,6 +702,7 @@ select {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  min-height: 100dvh;
   padding: 24px 16px;
   background: var(--app-sidebar-bg);
 }
@@ -951,6 +953,7 @@ select {
 .app-dialog {
   width: min(420px, calc(100vw - 32px));
   max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   padding: 0;
   color: var(--app-text);
   background: var(--app-surface);
@@ -1154,7 +1157,7 @@ select {
 /* Toasts: centred at the top of the window, newest first */
 .toast-stack {
   position: fixed;
-  top: 16px;
+  top: calc(16px + env(safe-area-inset-top));
   left: 50%;
   z-index: 1000;
   display: flex;
@@ -1315,4 +1318,196 @@ select {
 
 .line-login-button:hover {
   filter: brightness(0.95);
+}
+
+/* ---------- 手機（RWD）：側欄變成抽屜，標題列與工具列重新排列 ---------- */
+/* Only shown on phones */
+.mobile-menu-button,
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* iOS Safari zooms into any field with text smaller than 16px; keep them all at 16px */
+  input:not(.note-title-input),
+  select,
+  textarea,
+  .category-select,
+  .markdown-input {
+    font-size: 16px;
+  }
+
+  /* Sidebar slides in from the left over the page */
+  .note-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    width: min(86vw, 320px);
+    padding-top: calc(16px + env(safe-area-inset-top));
+    padding-left: calc(14px + env(safe-area-inset-left));
+    visibility: hidden;
+    transform: translateX(-100%);
+    transition:
+      transform 0.25s ease,
+      visibility 0s linear 0.25s;
+  }
+
+  .note-sidebar.open {
+    visibility: visible;
+    transform: none;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.25);
+    transition: transform 0.25s ease;
+  }
+
+  .note-sidebar-footer {
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: block;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .app-main {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  }
+
+  .mobile-menu-button {
+    position: absolute;
+    top: calc(8px + env(safe-area-inset-top));
+    left: calc(6px + env(safe-area-inset-left));
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    color: var(--app-text);
+    background: none;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .mobile-menu-button:active {
+    background: var(--app-hover);
+  }
+
+  .app-theme-toggle {
+    top: calc(8px + env(safe-area-inset-top));
+    right: calc(10px + env(safe-area-inset-right));
+  }
+
+  .app-hint {
+    padding: 64px 20px 20px;
+  }
+
+  /* Header: title on its own line between the menu and theme buttons, the controls below it */
+  .note-editor-header {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 8px 12px;
+  }
+
+  .note-title-input {
+    flex: 1 1 100%;
+    margin: 0 46px 0 40px;
+    font-size: 20px;
+  }
+
+  .category-select {
+    flex: 1;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .icon-segmented button {
+    padding: 6px 12px;
+  }
+
+  /* Toolbar: one row that scrolls sideways, export buttons on the line below */
+  .note-editor-bar {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px 8px;
+  }
+
+  .md-toolbar {
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .md-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .md-tool {
+    flex-shrink: 0;
+    min-width: 36px;
+    height: 36px;
+  }
+
+  .export-menu {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* The toolbar scrolls, which would clip a dropdown; pin it under the top edge instead */
+  .md-popover {
+    position: fixed;
+    top: calc(64px + env(safe-area-inset-top));
+    right: 12px;
+    left: 12px;
+    max-height: 60dvh;
+    overflow-y: auto;
+  }
+
+  .md-language-grid {
+    width: auto;
+  }
+
+  /* Split view: editor above, preview below */
+  .note-editor-panes.view-split {
+    flex-direction: column;
+  }
+
+  .view-split .markdown-preview {
+    border-top: 1px solid var(--app-border);
+    border-left: none;
+  }
+
+  .markdown-input,
+  .view-edit .markdown-input {
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .login-page {
+    padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Touch screens have no hover: show the row's buttons once it is selected, with finger-sized targets */
+@media (hover: none) {
+  .garden-row.active .garden-actions,
+  .garden-row:focus-within .garden-actions {
+    display: flex;
+  }
+
+  .garden-row.active .sidebar-count,
+  .garden-row:focus-within .sidebar-count {
+    visibility: hidden;
+  }
+
+  .garden-actions button {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
 }
