@@ -697,6 +697,11 @@ body {
   height: auto;
 }
 
+/* 圖表標籤裡的文字是 <p>：不要套到內文段落的下邊距，否則方塊裡的字會被擠歪或裁掉 */
+.mermaid-block foreignObject p {
+  margin: 0;
+}
+
 /* 還沒畫好或語法有誤時顯示原始碼 */
 .mermaid-source {
   margin: 0;

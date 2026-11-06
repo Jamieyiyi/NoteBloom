@@ -1538,3 +1538,23 @@ select {
     font-size: 16px;
   }
 }
+
+/*
+ * Mermaid measures diagram labels here before drawing (see export/mermaid.ts). The text settings must match
+ * the preview / export page (body in export/themes/notebloom.css), or labels come out cut off.
+ */
+.nb-mermaid-measure {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 1200px;
+  visibility: hidden;
+  font-family: 'Roboto', 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  font-size: 17px;
+  line-height: 1.8;
+  pointer-events: none;
+}
+
+.nb-mermaid-measure p {
+  margin: 0;
+}

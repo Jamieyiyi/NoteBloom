@@ -4,6 +4,10 @@ import type { ExportThemeId } from './themes'
  * Mermaid 圖表：```mermaid 區塊在 renderMarkdown 裡先變成佔位元素（顯示原始碼），
  * 之後再非同步畫成 SVG。mermaid 很大，只有筆記裡真的有圖表時才載入。
  * securityLevel 'strict'：圖表文字裡的 HTML 與 script 都會被清掉。
+ *
+ * mermaid 會先量文字寬度再決定方塊大小，量的字型、字級、行高必須和顯示的地方（預覽 / 匯出頁，notebloom.css）一樣，
+ * 不然量到的比實際顯示的窄，文字就會被裁掉。mermaid 只能在主頁面裡畫，所以在主頁面放一個看不見的量尺寸區
+ * （.nb-mermaid-measure，見 app.css），並先載入同樣的網路字型（index.html）。
  */
 
 type Mermaid = typeof import('mermaid').default
@@ -31,7 +35,7 @@ export function createMermaidPlaceholder(doc: Document, source: string): HTMLEle
   return block
 }
 
-/** 預覽用：把 root 底下還沒畫的圖表畫成目前明暗模式的 SVG */
+/** 預覽用：把 root 底下還沒畫的圖表畫成目前明暗模式的 SVG（在圖表所在的那份文件裡量尺寸） */
 export async function renderMermaidBlocks(root: ParentNode, theme: ExportThemeId): Promise<void> {
   for (const block of pendingBlocks(root)) {
     const source = block.dataset.source ?? ''
@@ -73,6 +77,29 @@ export async function renderMermaidInHtml(html: string): Promise<string> {
   return doc.body.innerHTML
 }
 
+/** Hidden box on the main page whose text settings match the preview / export page; mermaid measures labels in it */
+function measuringBox(): HTMLElement {
+  let box = document.querySelector<HTMLElement>('.nb-mermaid-measure')
+  if (!box) {
+    box = document.createElement('div')
+    box.className = 'nb-mermaid-measure'
+    box.setAttribute('aria-hidden', 'true')
+    document.body.append(box)
+  }
+  return box
+}
+
+/**
+ * Web fonts only download once text uses them, so ask for them explicitly before measuring.
+ * Offline or blocked fonts just fall back, the same way for measuring and for display; never wait more than 3 s.
+ */
+function fontsLoaded(): Promise<unknown> {
+  const loading = Promise.all([document.fonts.load("16px 'Noto Sans TC'", '中文'), document.fonts.load('16px Roboto', 'Aa')]).catch(
+    () => undefined,
+  )
+  return Promise.race([loading, new Promise((resolve) => setTimeout(resolve, 3000))])
+}
+
 function pendingBlocks(root: ParentNode): HTMLElement[] {
   return Array.from(root.querySelectorAll<HTMLElement>('.mermaid-block:not([data-rendered])'))
 }
@@ -87,13 +114,14 @@ function renderSvg(source: string, theme: ExportThemeId): Promise<string> {
   if (cached) return Promise.resolve(cached)
 
   const job = queue.then(async () => {
-    const mermaid = await load()
+    const [mermaid] = await Promise.all([load(), fontsLoaded()])
     if (configuredTheme !== theme) {
       mermaid.initialize({
         startOnLoad: false,
         securityLevel: 'strict',
         theme: theme === 'dark' ? 'dark' : 'default',
-        fontFamily: "'Noto Sans TC', 'Roboto', sans-serif",
+        // Same stack as the preview / export page, so labels are drawn in the font they were measured in
+        fontFamily: "'Roboto', 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', sans-serif",
       })
       configuredTheme = theme
     }
@@ -101,11 +129,11 @@ function renderSvg(source: string, theme: ExportThemeId): Promise<string> {
     await mermaid.parse(source)
     const id = `nb-mermaid-${++renderCount}`
     try {
-      const { svg } = await mermaid.render(id, source)
+      const { svg } = await mermaid.render(id, source, measuringBox())
       remember(key, svg)
       return svg
     } finally {
-      // render 會在 body 暫放一個量尺寸用的元素，失敗時可能留下來
+      // render 會在量尺寸區暫放一個元素，失敗時可能留下來
       document.getElementById(`d${id}`)?.remove()
     }
   })

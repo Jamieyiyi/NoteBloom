@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Same web fonts as the preview / export page; Mermaid diagrams are measured with them (src/export/mermaid.ts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" />
     <title>NoteBloom</title>
     <script>
       // 在畫面繪製前套用上次的明暗模式，避免載入時閃爍（key 與 src/ui/useAppTheme.ts 相同）
