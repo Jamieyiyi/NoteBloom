@@ -105,6 +105,37 @@ export function insertCodeBlock(selection: Selection, language: string): TextEdi
   return insertBlock(selection, block, opening.length, opening.length + code.length)
 }
 
+export type MermaidTemplate = 'flowchart' | 'sequence' | 'gantt' | 'pie'
+
+const MERMAID_TEMPLATES: Record<MermaidTemplate, string> = {
+  flowchart: ['flowchart TD', '    A[開始] --> B{是否登入？}', '    B -- 是 --> C[開啟筆記]', '    B -- 否 --> D[登入頁]', '    D --> B'].join('\n'),
+  sequence: [
+    'sequenceDiagram',
+    '    participant 使用者',
+    '    participant NoteBloom',
+    '    使用者->>NoteBloom: 新增筆記',
+    '    NoteBloom-->>使用者: 已儲存',
+  ].join('\n'),
+  gantt: [
+    'gantt',
+    '    dateFormat YYYY-MM-DD',
+    '    title 專案時程',
+    '    section 規劃',
+    '    需求訪談 :a1, 2026-11-01, 5d',
+    '    section 開發',
+    '    前端 :after a1, 10d',
+    '    後端 :after a1, 8d',
+  ].join('\n'),
+  pie: ['pie title 時間分配', '    "工作" : 50', '    "學習" : 30', '    "休息" : 20'].join('\n'),
+}
+
+/** Mermaid 圖表範例；游標停在範例內容的開頭 */
+export function insertMermaid(selection: Selection, template: MermaidTemplate): TextEdit {
+  const opening = '```mermaid\n'
+  const body = MERMAID_TEMPLATES[template]
+  return insertBlock(selection, `${opening}${body}\n\`\`\``, opening.length, opening.length)
+}
+
 /** 簡譜範例（鋼琴右手 / 左手），選取曲名方便直接改 */
 export function insertJianpu(selection: Selection): TextEdit {
   const title = '小星星'

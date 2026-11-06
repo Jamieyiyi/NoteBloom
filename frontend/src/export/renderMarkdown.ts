@@ -26,6 +26,7 @@ import 'prismjs/components/prism-diff'
 import 'prismjs/components/prism-markdown'
 import { makeUniqueSlug, slugify } from './slugify'
 import { JIANPU_LANGUAGES, renderJianpu } from './jianpu'
+import { createMermaidPlaceholder, MERMAID_LANGUAGE } from './mermaid'
 import { CALLOUT_ICON_PATHS, CHECK_ICON_PATH, COPY_ICON_PATH, svgIcon, type CalloutKind } from '../ui/icons'
 
 export interface TocEntry {
@@ -99,6 +100,11 @@ function decorateCodeBlocks(parsed: Document): void {
     // ```jianpu 區塊是簡譜，畫成樂譜而不是程式碼
     if (requested && JIANPU_LANGUAGES.has(requested)) {
       pre.replaceWith(renderJianpu(code.textContent ?? '', parsed))
+      return
+    }
+    // ```mermaid 區塊是圖表：先放原始碼，預覽 / 匯出時再畫成圖
+    if (requested === MERMAID_LANGUAGE) {
+      pre.replaceWith(createMermaidPlaceholder(parsed, code.textContent ?? ''))
       return
     }
     const language = resolveLanguage(requested)

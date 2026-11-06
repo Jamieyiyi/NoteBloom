@@ -4,6 +4,7 @@ import { buildBodyHtml, buildHtmlDocument } from '../export/buildHtmlDocument'
 import type { ExportThemeId } from '../export/themes'
 import { withTitleHeading } from '../export/withTitleHeading'
 import { copyText } from '../ui/clipboard'
+import { renderMermaidBlocks } from '../export/mermaid'
 
 interface MarkdownPreviewProps {
   /** 顯示成最上方的 H1，和匯出結果一致 */
@@ -34,7 +35,10 @@ export function MarkdownPreview({ title, markdown, themeId }: MarkdownPreviewPro
       const section = doc.getElementById(id)?.closest('details')
       if (section) section.open = false
     })
-  }, [deferredMarkdown, ready])
+    // Diagrams are drawn afterwards (mermaid loads on first use), in the current light / dark colours
+    void renderMermaidBlocks(doc.body, themeId)
+    // themeId: diagrams are redrawn in the other colours when the theme changes
+  }, [deferredMarkdown, ready, themeId])
 
   useEffect(() => {
     const doc = frameRef.current?.contentDocument

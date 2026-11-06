@@ -16,11 +16,11 @@ export function ExportMenu({ markdown, title, themeId }: ExportMenuProps) {
   // Embedding uploaded images takes a moment; block a second click meanwhile
   const [busy, setBusy] = useState(false)
 
-  async function run(exporter: (content: string) => void) {
+  async function run(exporter: (content: string) => void | Promise<void>) {
     setBusy(true)
     try {
       // 標題在匯出檔裡變成最上方的 H1
-      exporter(withTitleHeading(title, await inlineImages(markdown)))
+      await exporter(withTitleHeading(title, await inlineImages(markdown)))
     } finally {
       setBusy(false)
     }

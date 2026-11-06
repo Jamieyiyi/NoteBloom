@@ -681,6 +681,45 @@ body {
 }
 
 /* ---------- 響應式 / 列印 ---------- */
+/* ---------- Mermaid 圖表（```mermaid 區塊） ---------- */
+.mermaid-block {
+  margin: 1.2em 0 1.6em;
+  padding: 16px;
+  overflow-x: auto;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.mermaid-block svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 還沒畫好或語法有誤時顯示原始碼 */
+.mermaid-source {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.85em;
+  text-align: left;
+  white-space: pre-wrap;
+  color: var(--muted);
+}
+
+.mermaid-error {
+  margin-top: 8px;
+  font-size: 0.85em;
+  text-align: left;
+  color: #e5484d;
+}
+
+/* 匯出檔裡淺色、深色各有一張，跟著明暗切換 */
+html[data-theme='dark'] .mermaid-light,
+html[data-theme='light'] .mermaid-dark {
+  display: none;
+}
+
 /* ---------- 簡譜（```jianpu 區塊） ---------- */
 .jianpu {
   margin: 1.2em 0 1.6em;

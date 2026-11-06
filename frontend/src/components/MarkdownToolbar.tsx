@@ -4,11 +4,13 @@ import {
   insertCodeBlock,
   insertHorizontalRule,
   insertJianpu,
+  insertMermaid,
   insertLink,
   insertTable,
   toggleLinePrefix,
   wrapInline,
   type CalloutMarker,
+  type MermaidTemplate,
   type LinePrefixKind,
   type Selection,
   type TextEdit,
@@ -33,6 +35,13 @@ const CALLOUTS: readonly { marker: CalloutMarker; label: string }[] = [
   { marker: 'ERROR', label: '⊗ 錯誤' },
 ]
 
+const MERMAID_TEMPLATES: readonly { template: MermaidTemplate; label: string }[] = [
+  { template: 'flowchart', label: '流程圖' },
+  { template: 'sequence', label: '時序圖' },
+  { template: 'gantt', label: '甘特圖' },
+  { template: 'pie', label: '圓餅圖' },
+]
+
 const JIANPU_HELP: readonly [string, string][] = [
   ['R: / L:', '右手 / 左手，同一行譜的小節會上下對齊'],
   ['1–7  0', '音符、休止符'],
@@ -46,7 +55,7 @@ const JIANPU_HELP: readonly [string, string][] = [
   ['空一行', '換到下一行譜'],
 ]
 
-type Popover = 'code' | 'table' | 'quote' | 'image' | 'jianpu' | null
+type Popover = 'code' | 'table' | 'quote' | 'image' | 'jianpu' | 'mermaid' | null
 
 export function MarkdownToolbar({ textareaRef, onChange, onUploadImages }: MarkdownToolbarProps) {
   const [popover, setPopover] = useState<Popover>(null)
@@ -172,6 +181,23 @@ export function MarkdownToolbar({ textareaRef, onChange, onUploadImages }: Markd
           }}
         />
         <ToolButton label="―" title="分隔線" onClick={() => run(insertHorizontalRule)} />
+        <PopoverButton
+          label="◇ 圖表"
+          title="插入 Mermaid 圖表"
+          open={popover === 'mermaid'}
+          onToggle={() => setPopover(popover === 'mermaid' ? null : 'mermaid')}
+          onClose={() => setPopover(null)}
+        >
+          <div className="md-popover-title">Mermaid 圖表範例</div>
+          <div className="md-callout-menu">
+            {MERMAID_TEMPLATES.map(({ template, label }) => (
+              <button key={template} type="button" onClick={() => run((s) => insertMermaid(s, template))}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="md-popover-hint">語法說明：mermaid.js.org</div>
+        </PopoverButton>
         <PopoverButton
           label="♪ 簡譜"
           title="插入簡譜（鋼琴可分右手 / 左手）"
