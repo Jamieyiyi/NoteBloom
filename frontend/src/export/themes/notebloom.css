@@ -359,7 +359,9 @@ body {
   color: var(--accent);
 }
 
+/* 編號用一般文字顏色，不用主題色 */
 .nb-content ol > li::marker {
+  color: var(--text);
   font-weight: 700;
 }
 
@@ -383,8 +385,29 @@ body {
 
 /* ---------- Callouts: > [!INFO] / > [!WARN] / > [!ERROR] ---------- */
 .nb-content blockquote.callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   background: color-mix(in srgb, var(--callout) 10%, transparent);
   border-left-color: var(--callout);
+}
+
+/* 圖示在左邊一欄，和內容第一行對齊 */
+.callout-icon-wrap {
+  display: flex;
+  flex: none;
+  height: 1.8em;
+  align-items: center;
+  color: var(--callout);
+}
+
+.callout-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.callout-body > :last-child {
+  margin-bottom: 0;
 }
 
 .callout-info {
@@ -400,9 +423,6 @@ body {
 }
 
 .nb-content .callout-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   margin: 0 0 0.4em;
   color: var(--callout);
   font-weight: 700;
@@ -410,8 +430,8 @@ body {
 
 .callout-icon {
   flex: none;
-  width: 1.15em;
-  height: 1.15em;
+  width: 1.3em;
+  height: 1.3em;
 }
 
 /* ---------- Collapsible H2 / H3 sections ---------- */

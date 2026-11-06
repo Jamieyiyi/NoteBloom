@@ -251,15 +251,15 @@ select {
   white-space: nowrap;
 }
 
-/* Category pots: the plant inside shows the state (sprout = empty, bud = folded, flower = open) */
-.garden-pot-wrap {
+/* Category flowers: each category has its own colour */
+.garden-flower-wrap {
   display: inline-flex;
   flex-shrink: 0;
   transition: transform 0.25s ease;
 }
 
-.garden-row-main:hover .garden-pot-wrap {
-  transform: translateY(-1px) rotate(-6deg);
+.garden-row-main:hover .garden-flower-wrap {
+  transform: rotate(36deg);
 }
 
 .garden-branch .garden-label {

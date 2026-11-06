@@ -1,4 +1,4 @@
-// 側欄「花園」用的圖示：盆栽（分類）、花瓣（筆記）、嫩芽（新增分類）；花也用在 Logo 與訊息
+// 側欄「花園」用的圖示：花朵（分類）、花瓣（筆記）、嫩芽（新增分類）；花也用在訊息
 
 // 五片花瓣的圓心，和 Logo 裡的小花一樣是五瓣
 const PETALS: [number, number][] = [
@@ -41,22 +41,14 @@ export function SproutIcon({ size = 18 }: { size?: number }) {
   )
 }
 
-// 開花用的小花：同樣五瓣，縮小後放在花莖頂端 (12, 6.2)
-const SMALL_PETALS = PETALS.map(([cx, cy]) => [12 + (cx - 12) * 0.56, 6.2 + (cy - 12) * 0.56] as const)
-
-/** 分類：開花的盆栽，花的顏色跟著分類（見 ui/gardenColors） */
-export function PotIcon({ color, size = 20 }: { color: string; size?: number }) {
+/** 分類：一朵五瓣花，顏色跟著分類（見 ui/gardenColors） */
+export function CategoryFlowerIcon({ color, size = 18 }: { color: string; size?: number }) {
   return (
-    <svg className="garden-pot" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 14V7.4" stroke="var(--leaf-vein)" strokeWidth={1.5} strokeLinecap="round" />
-      <path d="M12 12.2c0-2-1.5-3.3-3.6-3.3 0 2 1.5 3.3 3.6 3.3Z" fill="var(--leaf)" />
-      <path d="M12 11.4c0-1.8 1.3-3 3.2-3 0 1.8-1.3 3-3.2 3Z" fill="var(--leaf)" />
-      {SMALL_PETALS.map(([cx, cy]) => (
-        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={2.6} fill={color} />
+    <svg className="garden-category-flower" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      {PETALS.map(([cx, cy]) => (
+        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={4.6} fill={color} />
       ))}
-      <circle cx={12} cy={6.2} r={1.7} fill="var(--petal-center)" />
-      <path d="M6.3 15.8h11.4l-1.5 6.2H7.8Z" fill="var(--pot)" />
-      <rect x={5} y={13.6} width={14} height={2.8} rx={1} fill="var(--pot-rim)" />
+      <circle cx={12} cy={12} r={3.1} fill="var(--petal-center)" />
     </svg>
   )
 }

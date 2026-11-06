@@ -5,7 +5,7 @@ import type { AppTheme } from '../ui/useAppTheme'
 import { buildCategoryTree, flattenWithPaths, subtreeIds, type CategoryNode } from '../notes/categoryTree'
 import logoOnDark from '../assets/logo-on-dark.png'
 import logoOnLight from '../assets/logo-on-light.png'
-import { PetalIcon, PotIcon, SproutIcon } from './GardenIcons'
+import { CategoryFlowerIcon, PetalIcon, SproutIcon } from './GardenIcons'
 import { categoryColors, UNCATEGORIZED_COLOR } from '../ui/gardenColors'
 import { Notice } from './Notice'
 import { useNotify } from '../ui/notifications'
@@ -42,7 +42,7 @@ interface GardenContext extends NoteSidebarProps {
 }
 
 /**
- * 側欄是一座花園：最上面是「全部筆記」，分類是一盆盆開花的盆栽（最多 5 層，每個分類有自己的花色），
+ * 側欄是一座花園：最上面是「全部筆記」，分類是一朵朵花（最多 5 層，每個分類有自己的花色），
  * 筆記是一片片花瓣，顏色跟著所在的分類；沒有分類的筆記是粉紅色花瓣。登入後所有分類都先收起來。
  */
 export function NoteSidebar(props: NoteSidebarProps) {
@@ -179,8 +179,8 @@ function CategoryBranch({ node, context }: { node: CategoryNode; context: Garden
             aria-expanded={!collapsed}
             onClick={() => onBranchClick(category.id)}
           >
-            <span className="garden-pot-wrap">
-              <PotIcon color={color} size={depth === 1 ? 20 : 18} />
+            <span className="garden-flower-wrap">
+              <CategoryFlowerIcon color={color} size={depth === 1 ? 18 : 16} />
             </span>
             <span className="garden-label" title={category.name}>{category.name}</span>
             <span className="sidebar-count">{total}</span>

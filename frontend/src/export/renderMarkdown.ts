@@ -162,12 +162,24 @@ function decorateCallouts(parsed: Document): void {
     textNode.textContent = (textNode.textContent ?? '').slice(match[0].length)
     if (!paragraph.textContent?.trim() && !paragraph.querySelector('img')) paragraph.remove()
 
-    const title = parsed.createElement('p')
-    title.className = 'callout-title'
-    title.innerHTML = svgIcon(CALLOUT_ICON_PATHS[kind], 'callout-icon')
-    title.append(match[2].trim() || CALLOUT_LABELS[kind])
+    // 圖示放在左邊一欄，內容在右邊；不另外寫「資訊 / 警告 / 錯誤」，有自訂標題（> [!WARN] 標題）才顯示
+    const body = parsed.createElement('div')
+    body.className = 'callout-body'
+    body.append(...Array.from(quote.childNodes))
+    const customTitle = match[2].trim()
+    if (customTitle) {
+      const title = parsed.createElement('p')
+      title.className = 'callout-title'
+      title.textContent = customTitle
+      body.prepend(title)
+    }
+    const icon = parsed.createElement('span')
+    icon.className = 'callout-icon-wrap'
+    icon.setAttribute('role', 'img')
+    icon.setAttribute('aria-label', CALLOUT_LABELS[kind])
+    icon.innerHTML = svgIcon(CALLOUT_ICON_PATHS[kind], 'callout-icon')
     quote.classList.add('callout', `callout-${kind}`)
-    quote.prepend(title)
+    quote.append(icon, body)
   })
 }
 
