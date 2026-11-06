@@ -487,6 +487,13 @@ body {
   border-radius: 10px;
 }
 
+/* 自成一段的圖片：細框線＋淡陰影，白底截圖在白底頁面上也看得出邊界 */
+.nb-content img.nb-block-img {
+  display: block;
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
 /* ---------- 行內程式碼 ---------- */
 .nb-content :not(pre) > code {
   padding: 0.15em 0.45em;

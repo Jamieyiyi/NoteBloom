@@ -73,6 +73,7 @@ export function renderMarkdown(markdown: string): RenderedMarkdown {
   decorateCodeBlocks(parsed)
   wrapTables(parsed)
   decorateCallouts(parsed)
+  markStandaloneImages(parsed)
   wrapCollapsibleSections(parsed)
   return { html: parsed.body.innerHTML, toc }
 }
@@ -120,6 +121,17 @@ function decorateCodeBlocks(parsed: Document): void {
     block.className = 'code-block'
     pre.replaceWith(block)
     block.append(createCodeHeader(parsed, requested ?? 'text'), pre)
+  })
+}
+
+/**
+ * 自成一段的圖片（例如上傳的截圖）加上邊框，白底圖片放在白底頁面才看得出邊界；
+ * 夾在文字裡的小圖示、徽章不加，以免多出框線。
+ */
+function markStandaloneImages(parsed: Document): void {
+  parsed.querySelectorAll('p').forEach((paragraph) => {
+    if (paragraph.textContent?.trim()) return
+    paragraph.querySelectorAll('img').forEach((image) => image.classList.add('nb-block-img'))
   })
 }
 
